@@ -1,0 +1,161 @@
+import { MuscleGroup } from "@/types";
+
+export interface SeedExercise {
+  name: string;
+  muscleGroup: MuscleGroup;
+  equipment: string;
+}
+
+export const SEED_EXERCISES: SeedExercise[] = [
+  // Chest
+  { name: "Bench Press", muscleGroup: "Chest", equipment: "Barbell" },
+  { name: "Incline Bench Press", muscleGroup: "Chest", equipment: "Barbell" },
+  { name: "Decline Bench Press", muscleGroup: "Chest", equipment: "Barbell" },
+  { name: "Dumbbell Bench Press", muscleGroup: "Chest", equipment: "Dumbbell" },
+  { name: "Incline Dumbbell Press", muscleGroup: "Chest", equipment: "Dumbbell" },
+  { name: "Decline Dumbbell Press", muscleGroup: "Chest", equipment: "Dumbbell" },
+  { name: "Cable Fly", muscleGroup: "Chest", equipment: "Cable" },
+  { name: "Dumbbell Fly", muscleGroup: "Chest", equipment: "Dumbbell" },
+  { name: "Incline Dumbbell Fly", muscleGroup: "Chest", equipment: "Dumbbell" },
+  { name: "Pec Deck", muscleGroup: "Chest", equipment: "Machine" },
+  { name: "Chest Press Machine", muscleGroup: "Chest", equipment: "Machine" },
+  { name: "Push Up", muscleGroup: "Chest", equipment: "Bodyweight" },
+  { name: "Incline Push Up", muscleGroup: "Chest", equipment: "Bodyweight" },
+  { name: "Dips", muscleGroup: "Chest", equipment: "Bodyweight" },
+  { name: "Landmine Press", muscleGroup: "Chest", equipment: "Barbell" },
+  { name: "Svend Press", muscleGroup: "Chest", equipment: "Other" },
+
+  // Back
+  { name: "Pull Up", muscleGroup: "Back", equipment: "Bodyweight" },
+  { name: "Chin Up", muscleGroup: "Back", equipment: "Bodyweight" },
+  { name: "Lat Pulldown", muscleGroup: "Back", equipment: "Cable" },
+  { name: "Close Grip Lat Pulldown", muscleGroup: "Back", equipment: "Cable" },
+  { name: "Barbell Row", muscleGroup: "Back", equipment: "Barbell" },
+  { name: "Pendlay Row", muscleGroup: "Back", equipment: "Barbell" },
+  { name: "T-Bar Row", muscleGroup: "Back", equipment: "Machine" },
+  { name: "Seated Cable Row", muscleGroup: "Back", equipment: "Cable" },
+  { name: "Single Arm Dumbbell Row", muscleGroup: "Back", equipment: "Dumbbell" },
+  { name: "Deadlift", muscleGroup: "Back", equipment: "Barbell" },
+  { name: "Sumo Deadlift", muscleGroup: "Back", equipment: "Barbell" },
+  { name: "Rack Pull", muscleGroup: "Back", equipment: "Barbell" },
+  { name: "Straight Arm Pulldown", muscleGroup: "Back", equipment: "Cable" },
+  { name: "Face Pull", muscleGroup: "Back", equipment: "Cable" },
+  { name: "Inverted Row", muscleGroup: "Back", equipment: "Bodyweight" },
+  { name: "Meadows Row", muscleGroup: "Back", equipment: "Barbell" },
+  { name: "Hyperextension", muscleGroup: "Back", equipment: "Bodyweight" },
+  { name: "Good Morning", muscleGroup: "Back", equipment: "Barbell" },
+
+  // Legs
+  { name: "Squat", muscleGroup: "Legs", equipment: "Barbell" },
+  { name: "Front Squat", muscleGroup: "Legs", equipment: "Barbell" },
+  { name: "Goblet Squat", muscleGroup: "Legs", equipment: "Dumbbell" },
+  { name: "Hack Squat", muscleGroup: "Legs", equipment: "Machine" },
+  { name: "Box Squat", muscleGroup: "Legs", equipment: "Barbell" },
+  { name: "Zercher Squat", muscleGroup: "Legs", equipment: "Barbell" },
+  { name: "Leg Press", muscleGroup: "Legs", equipment: "Machine" },
+  { name: "Romanian Deadlift", muscleGroup: "Legs", equipment: "Barbell" },
+  { name: "Stiff Leg Deadlift", muscleGroup: "Legs", equipment: "Barbell" },
+  { name: "Leg Curl", muscleGroup: "Legs", equipment: "Machine" },
+  { name: "Leg Extension", muscleGroup: "Legs", equipment: "Machine" },
+  { name: "Walking Lunge", muscleGroup: "Legs", equipment: "Dumbbell" },
+  { name: "Bulgarian Split Squat", muscleGroup: "Legs", equipment: "Dumbbell" },
+  { name: "Step Up", muscleGroup: "Legs", equipment: "Dumbbell" },
+  { name: "Hip Thrust", muscleGroup: "Legs", equipment: "Barbell" },
+  { name: "Glute Bridge", muscleGroup: "Legs", equipment: "Bodyweight" },
+  { name: "Calf Raise", muscleGroup: "Legs", equipment: "Machine" },
+  { name: "Seated Calf Raise", muscleGroup: "Legs", equipment: "Machine" },
+  { name: "Standing Calf Raise", muscleGroup: "Legs", equipment: "Machine" },
+  { name: "Sissy Squat", muscleGroup: "Legs", equipment: "Bodyweight" },
+  { name: "Nordic Curl", muscleGroup: "Legs", equipment: "Bodyweight" },
+  { name: "Kettlebell Swing", muscleGroup: "Legs", equipment: "Kettlebell" },
+
+  // Shoulders
+  { name: "Overhead Press", muscleGroup: "Shoulders", equipment: "Barbell" },
+  { name: "Seated Dumbbell Shoulder Press", muscleGroup: "Shoulders", equipment: "Dumbbell" },
+  { name: "Arnold Press", muscleGroup: "Shoulders", equipment: "Dumbbell" },
+  { name: "Lateral Raise", muscleGroup: "Shoulders", equipment: "Dumbbell" },
+  { name: "Cable Lateral Raise", muscleGroup: "Shoulders", equipment: "Cable" },
+  { name: "Front Raise", muscleGroup: "Shoulders", equipment: "Dumbbell" },
+  { name: "Rear Delt Fly", muscleGroup: "Shoulders", equipment: "Dumbbell" },
+  { name: "Cable Rear Delt Fly", muscleGroup: "Shoulders", equipment: "Cable" },
+  { name: "Upright Row", muscleGroup: "Shoulders", equipment: "Barbell" },
+  { name: "Shrug", muscleGroup: "Shoulders", equipment: "Barbell" },
+  { name: "Dumbbell Shrug", muscleGroup: "Shoulders", equipment: "Dumbbell" },
+  { name: "Machine Shoulder Press", muscleGroup: "Shoulders", equipment: "Machine" },
+  { name: "Landmine Lateral Raise", muscleGroup: "Shoulders", equipment: "Barbell" },
+
+  // Arms
+  { name: "Barbell Curl", muscleGroup: "Arms", equipment: "Barbell" },
+  { name: "Dumbbell Curl", muscleGroup: "Arms", equipment: "Dumbbell" },
+  { name: "Hammer Curl", muscleGroup: "Arms", equipment: "Dumbbell" },
+  { name: "Preacher Curl", muscleGroup: "Arms", equipment: "Barbell" },
+  { name: "Concentration Curl", muscleGroup: "Arms", equipment: "Dumbbell" },
+  { name: "Cable Curl", muscleGroup: "Arms", equipment: "Cable" },
+  { name: "EZ Bar Curl", muscleGroup: "Arms", equipment: "Barbell" },
+  { name: "Reverse Curl", muscleGroup: "Arms", equipment: "Barbell" },
+  { name: "Wrist Curl", muscleGroup: "Arms", equipment: "Dumbbell" },
+  { name: "Triceps Pushdown", muscleGroup: "Arms", equipment: "Cable" },
+  { name: "Skull Crushers", muscleGroup: "Arms", equipment: "Barbell" },
+  { name: "Overhead Triceps Extension", muscleGroup: "Arms", equipment: "Dumbbell" },
+  { name: "Cable Overhead Triceps Extension", muscleGroup: "Arms", equipment: "Cable" },
+  { name: "Close Grip Bench Press", muscleGroup: "Arms", equipment: "Barbell" },
+  { name: "Triceps Kickback", muscleGroup: "Arms", equipment: "Dumbbell" },
+  { name: "Diamond Push Up", muscleGroup: "Arms", equipment: "Bodyweight" },
+  { name: "Bench Dip", muscleGroup: "Arms", equipment: "Bodyweight" },
+
+  // Core
+  { name: "Plank", muscleGroup: "Core", equipment: "Bodyweight" },
+  { name: "Side Plank", muscleGroup: "Core", equipment: "Bodyweight" },
+  { name: "Hanging Leg Raise", muscleGroup: "Core", equipment: "Bodyweight" },
+  { name: "Cable Crunch", muscleGroup: "Core", equipment: "Cable" },
+  { name: "Sit Up", muscleGroup: "Core", equipment: "Bodyweight" },
+  { name: "Crunch", muscleGroup: "Core", equipment: "Bodyweight" },
+  { name: "Russian Twist", muscleGroup: "Core", equipment: "Bodyweight" },
+  { name: "Ab Wheel Rollout", muscleGroup: "Core", equipment: "Other" },
+  { name: "Mountain Climber", muscleGroup: "Core", equipment: "Bodyweight" },
+  { name: "Cable Woodchopper", muscleGroup: "Core", equipment: "Cable" },
+  { name: "Bicycle Crunch", muscleGroup: "Core", equipment: "Bodyweight" },
+  { name: "Dragon Flag", muscleGroup: "Core", equipment: "Bodyweight" },
+  { name: "Pallof Press", muscleGroup: "Core", equipment: "Cable" },
+
+  // Cardio
+  { name: "Treadmill Run", muscleGroup: "Cardio", equipment: "Machine" },
+  { name: "Stationary Bike", muscleGroup: "Cardio", equipment: "Machine" },
+  { name: "Rowing Machine", muscleGroup: "Cardio", equipment: "Machine" },
+  { name: "Elliptical", muscleGroup: "Cardio", equipment: "Machine" },
+  { name: "Stair Climber", muscleGroup: "Cardio", equipment: "Machine" },
+  { name: "Assault Bike", muscleGroup: "Cardio", equipment: "Machine" },
+  { name: "Jump Rope", muscleGroup: "Cardio", equipment: "Other" },
+  { name: "Battle Ropes", muscleGroup: "Cardio", equipment: "Other" },
+  { name: "Sled Push", muscleGroup: "Cardio", equipment: "Other" },
+  { name: "Burpees", muscleGroup: "Cardio", equipment: "Bodyweight" },
+
+  // Other
+  { name: "Farmer's Carry", muscleGroup: "Other", equipment: "Kettlebell" },
+  { name: "Turkish Get Up", muscleGroup: "Other", equipment: "Kettlebell" },
+  { name: "Kettlebell Snatch", muscleGroup: "Other", equipment: "Kettlebell" },
+  { name: "Band Pull Apart", muscleGroup: "Other", equipment: "Band" },
+  { name: "Battle Rope Slam", muscleGroup: "Other", equipment: "Other" },
+];
+
+export const MUSCLE_GROUPS: MuscleGroup[] = [
+  "Chest",
+  "Back",
+  "Legs",
+  "Shoulders",
+  "Arms",
+  "Core",
+  "Cardio",
+  "Other",
+];
+
+export const EQUIPMENT_OPTIONS = [
+  "Barbell",
+  "Dumbbell",
+  "Machine",
+  "Cable",
+  "Bodyweight",
+  "Kettlebell",
+  "Band",
+  "Other",
+];

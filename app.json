@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Gym Tracker",
+    "slug": "gym-tracker",
+    "scheme": "gymtracker",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0D0D0F",
+    "newArchEnabled": true,
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.neiltapita.gymtracker"
+    },
+    "android": {
+      "package": "com.neiltapita.gymtracker",
+      "adaptiveIcon": {
+        "backgroundColor": "#0D0D0F"
+      },
+      "permissions": [
+        "VIBRATE"
+      ]
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      }
+    }
+  }
+}
