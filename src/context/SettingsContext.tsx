@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useSQLiteContext } from "expo-sqlite";
-import { UserSettings } from "@/types";
+import { UserSettings, WaterUnit } from "@/types";
 import { getSettings, updateSettings } from "@/db/queries";
 
 interface SettingsContextValue {
@@ -10,6 +10,7 @@ interface SettingsContextValue {
   setDefaultRestSeconds: (seconds: number) => Promise<void>;
   setTheme: (theme: "dark" | "light") => Promise<void>;
   setAccentColor: (color: string) => Promise<void>;
+  setWaterUnit: (unit: WaterUnit) => Promise<void>;
   setNutritionGoals: (goals: {
     dailyCalorieGoal: number;
     proteinGoalG: number;
@@ -31,6 +32,7 @@ const defaultSettings: UserSettings = {
   carbGoalG: 220,
   fatGoalG: 70,
   waterGoalMl: 2500,
+  waterUnit: "mL",
 };
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
@@ -82,6 +84,14 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     [db]
   );
 
+  const setWaterUnit = useCallback(
+    async (waterUnit: WaterUnit) => {
+      await updateSettings(db, { waterUnit });
+      setSettings((prev) => ({ ...prev, waterUnit }));
+    },
+    [db]
+  );
+
   const setNutritionGoals = useCallback(
     async (goals: {
       dailyCalorieGoal: number;
@@ -105,6 +115,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         setDefaultRestSeconds,
         setTheme,
         setAccentColor,
+        setWaterUnit,
         setNutritionGoals,
         refresh,
       }}

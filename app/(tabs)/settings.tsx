@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActionSheetIOS, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSQLiteContext } from "expo-sqlite";
 import { Card } from "@/components/Card";
 import { PrimaryButton } from "@/components/PrimaryButton";
@@ -7,8 +7,11 @@ import { SectionHeader } from "@/components/SectionHeader";
 import { ACCENT_PRESETS, radii, spacing, typography } from "@/constants/theme";
 import { useTheme } from "@/context/ThemeContext";
 import { useSettings } from "@/context/SettingsContext";
+import { WaterUnit } from "@/types";
 import { exportWorkoutData, pickAndImportWorkoutData } from "@/utils/exportImport";
 import { haptics } from "@/utils/haptics";
+
+const WATER_UNITS: WaterUnit[] = ["mL", "L", "fl oz", "gal"];
 
 export default function SettingsScreen() {
   const { colors } = useTheme();
@@ -112,11 +115,30 @@ export default function SettingsScreen() {
     width: 90,
     textAlign: "center",
   },
+  dropdown: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: radii.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    width: 90,
+    justifyContent: "center",
+  },
+  dropdownText: {
+    ...typography.body,
+    color: colors.textPrimary,
+  },
+  dropdownCaret: {
+    ...typography.tiny,
+    color: colors.textTertiary,
+  },
 }),
     [colors]
   );
   const db = useSQLiteContext();
-  const { settings, setUnits, setTheme, setAccentColor, setNutritionGoals } = useSettings();
+  const { settings, setUnits, setTheme, setAccentColor, setWaterUnit, setNutritionGoals } = useSettings();
   const [busy, setBusy] = useState(false);
   const [goals, setGoals] = useState({
     proteinGoalG: String(settings.proteinGoalG),
@@ -133,6 +155,18 @@ export default function SettingsScreen() {
       waterGoalMl: String(settings.waterGoalMl),
     });
   }, [settings]);
+
+  const handleWaterUnitPress = () => {
+    ActionSheetIOS.showActionSheetWithOptions(
+      { options: [...WATER_UNITS, "Cancel"], cancelButtonIndex: WATER_UNITS.length },
+      (index) => {
+        if (index < WATER_UNITS.length) {
+          haptics.tap();
+          setWaterUnit(WATER_UNITS[index]);
+        }
+      }
+    );
+  };
 
   // Daily calorie goal is derived from the macro goals (protein/carbs = 4
   // kcal/g, fat = 9 kcal/g) rather than entered separately, so they can
@@ -275,7 +309,7 @@ export default function SettingsScreen() {
           <Text style={styles.computedCalorieValue}>{computedCalorieGoal}</Text>
         </View>
         <View style={styles.goalRow}>
-          <Text style={styles.goalLabel}>Water (mL)</Text>
+          <Text style={styles.goalLabel}>Water Goal (mL)</Text>
           <TextInput
             style={styles.goalInput}
             keyboardType="number-pad"
@@ -283,6 +317,13 @@ export default function SettingsScreen() {
             onChangeText={(t) => setGoals((g) => ({ ...g, waterGoalMl: t }))}
             onEndEditing={commitGoals}
           />
+        </View>
+        <View style={styles.goalRow}>
+          <Text style={styles.goalLabel}>Water Unit</Text>
+          <Pressable style={styles.dropdown} onPress={handleWaterUnitPress}>
+            <Text style={styles.dropdownText}>{settings.waterUnit}</Text>
+            <Text style={styles.dropdownCaret}>▾</Text>
+          </Pressable>
         </View>
       </Card>
 

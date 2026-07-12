@@ -767,6 +767,7 @@ export async function getSettings(db: SQLiteDatabase): Promise<UserSettings> {
     carb_goal_g: number;
     fat_goal_g: number;
     water_goal_ml: number;
+    water_unit: string;
   }>(`SELECT * FROM usersettings WHERE id = 1;`);
   if (!row) {
     return {
@@ -780,6 +781,7 @@ export async function getSettings(db: SQLiteDatabase): Promise<UserSettings> {
       carbGoalG: 220,
       fatGoalG: 70,
       waterGoalMl: 2500,
+      waterUnit: "mL",
     };
   }
   return {
@@ -793,6 +795,7 @@ export async function getSettings(db: SQLiteDatabase): Promise<UserSettings> {
     carbGoalG: row.carb_goal_g ?? 220,
     fatGoalG: row.fat_goal_g ?? 70,
     waterGoalMl: row.water_goal_ml ?? 2500,
+    waterUnit: (row.water_unit as UserSettings["waterUnit"]) ?? "mL",
   };
 }
 
@@ -810,6 +813,7 @@ export async function updateSettings(
       | "carbGoalG"
       | "fatGoalG"
       | "waterGoalMl"
+      | "waterUnit"
     >
   >
 ): Promise<void> {
@@ -842,6 +846,10 @@ export async function updateSettings(
   if (fields.carbGoalG !== undefined) {
     clauses.push("carb_goal_g = ?");
     values.push(fields.carbGoalG);
+  }
+  if (fields.waterUnit !== undefined) {
+    clauses.push("water_unit = ?");
+    values.push(fields.waterUnit);
   }
   if (fields.fatGoalG !== undefined) {
     clauses.push("fat_goal_g = ?");

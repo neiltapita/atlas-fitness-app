@@ -70,6 +70,8 @@ export interface BodyweightEntry {
   weight: number;
 }
 
+export type WaterUnit = "mL" | "L" | "fl oz" | "gal";
+
 export interface UserSettings {
   id: number;
   units: WeightUnit;
@@ -81,6 +83,7 @@ export interface UserSettings {
   carbGoalG: number;
   fatGoalG: number;
   waterGoalMl: number;
+  waterUnit: WaterUnit;
 }
 
 export type MealType = "breakfast" | "lunch" | "dinner" | "snack" | "drink";
