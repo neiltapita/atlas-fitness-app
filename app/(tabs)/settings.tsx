@@ -10,6 +10,7 @@ import { useSettings } from "@/context/SettingsContext";
 import { WaterUnit } from "@/types";
 import { exportWorkoutData, pickAndImportWorkoutData } from "@/utils/exportImport";
 import { haptics } from "@/utils/haptics";
+import { mlToUnit, unitToMl } from "@/utils/water";
 
 const WATER_UNITS: WaterUnit[] = ["mL", "L", "fl oz", "gal"];
 
@@ -115,24 +116,23 @@ export default function SettingsScreen() {
     width: 90,
     textAlign: "center",
   },
-  dropdown: {
+  goalLabelRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.xs,
-    backgroundColor: colors.surfaceElevated,
-    borderRadius: radii.sm,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    width: 90,
-    justifyContent: "center",
   },
-  dropdownText: {
+  inlineDropdown: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+  },
+  inlineDropdownText: {
     ...typography.body,
-    color: colors.textPrimary,
+    color: colors.accent,
+    fontWeight: "700",
   },
-  dropdownCaret: {
+  inlineDropdownCaret: {
     ...typography.tiny,
-    color: colors.textTertiary,
+    color: colors.accent,
   },
 }),
     [colors]
@@ -144,7 +144,7 @@ export default function SettingsScreen() {
     proteinGoalG: String(settings.proteinGoalG),
     carbGoalG: String(settings.carbGoalG),
     fatGoalG: String(settings.fatGoalG),
-    waterGoalMl: String(settings.waterGoalMl),
+    waterGoal: String(mlToUnit(settings.waterGoalMl, settings.waterUnit)),
   });
 
   useEffect(() => {
@@ -152,7 +152,7 @@ export default function SettingsScreen() {
       proteinGoalG: String(settings.proteinGoalG),
       carbGoalG: String(settings.carbGoalG),
       fatGoalG: String(settings.fatGoalG),
-      waterGoalMl: String(settings.waterGoalMl),
+      waterGoal: String(mlToUnit(settings.waterGoalMl, settings.waterUnit)),
     });
   }, [settings]);
 
@@ -177,12 +177,13 @@ export default function SettingsScreen() {
     (parseInt(goals.fatGoalG, 10) || 0) * 9;
 
   const commitGoals = () => {
+    const waterGoalValue = parseFloat(goals.waterGoal);
     setNutritionGoals({
       dailyCalorieGoal: computedCalorieGoal,
       proteinGoalG: parseInt(goals.proteinGoalG, 10) || settings.proteinGoalG,
       carbGoalG: parseInt(goals.carbGoalG, 10) || settings.carbGoalG,
       fatGoalG: parseInt(goals.fatGoalG, 10) || settings.fatGoalG,
-      waterGoalMl: parseInt(goals.waterGoalMl, 10) || settings.waterGoalMl,
+      waterGoalMl: waterGoalValue > 0 ? unitToMl(waterGoalValue, settings.waterUnit) : settings.waterGoalMl,
     });
   };
 
@@ -309,21 +310,21 @@ export default function SettingsScreen() {
           <Text style={styles.computedCalorieValue}>{computedCalorieGoal}</Text>
         </View>
         <View style={styles.goalRow}>
-          <Text style={styles.goalLabel}>Water Goal (mL)</Text>
+          <View style={styles.goalLabelRow}>
+            <Text style={styles.goalLabel}>Water Goal (</Text>
+            <Pressable style={styles.inlineDropdown} onPress={handleWaterUnitPress} hitSlop={8}>
+              <Text style={styles.inlineDropdownText}>{settings.waterUnit}</Text>
+              <Text style={styles.inlineDropdownCaret}>▾</Text>
+            </Pressable>
+            <Text style={styles.goalLabel}>)</Text>
+          </View>
           <TextInput
             style={styles.goalInput}
-            keyboardType="number-pad"
-            value={goals.waterGoalMl}
-            onChangeText={(t) => setGoals((g) => ({ ...g, waterGoalMl: t }))}
+            keyboardType="decimal-pad"
+            value={goals.waterGoal}
+            onChangeText={(t) => setGoals((g) => ({ ...g, waterGoal: t }))}
             onEndEditing={commitGoals}
           />
-        </View>
-        <View style={styles.goalRow}>
-          <Text style={styles.goalLabel}>Water Unit</Text>
-          <Pressable style={styles.dropdown} onPress={handleWaterUnitPress}>
-            <Text style={styles.dropdownText}>{settings.waterUnit}</Text>
-            <Text style={styles.dropdownCaret}>▾</Text>
-          </Pressable>
         </View>
       </Card>
 

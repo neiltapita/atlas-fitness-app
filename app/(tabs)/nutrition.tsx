@@ -19,6 +19,7 @@ import {
 import { DailyNutritionSummary, MacroTotalsByDate, MealType, NutritionEntry } from "@/types";
 import { addDaysToDateString, formatFriendlyDate, formatTime, shortDate, todayDateString } from "@/utils/dateHelpers";
 import { haptics } from "@/utils/haptics";
+import { formatWater } from "@/utils/water";
 
 const MEAL_TYPE_ORDER: MealType[] = ["breakfast", "lunch", "dinner", "snack", "drink"];
 const MEAL_TYPE_LABELS: Record<MealType, string> = {
@@ -219,19 +220,6 @@ export default function NutritionScreen() {
     load();
   };
 
-  const formatWater = (ml: number) => {
-    switch (settings.waterUnit) {
-      case "mL":
-        return `${Math.round(ml)} mL`;
-      case "fl oz":
-        return `${(ml / 29.5735).toFixed(1)} fl oz`;
-      case "gal":
-        return `${(ml / 3785.41).toFixed(2)} gal`;
-      default:
-        return `${(ml / 1000).toFixed(1)} L`;
-    }
-  };
-
   if (!summary) return null;
 
   const remaining = settings.dailyCalorieGoal - summary.calories;
@@ -303,8 +291,8 @@ export default function NutritionScreen() {
 
             <Card style={styles.waterCard}>
               <View>
-                <Text style={styles.waterText}>{formatWater(summary.waterMl)}</Text>
-                <Text style={styles.waterSub}>of {formatWater(settings.waterGoalMl)}</Text>
+                <Text style={styles.waterText}>{formatWater(summary.waterMl, settings.waterUnit)}</Text>
+                <Text style={styles.waterSub}>of {formatWater(settings.waterGoalMl, settings.waterUnit)}</Text>
               </View>
               <View style={styles.waterButtons}>
                 <Pressable style={styles.waterButton} onPress={() => handleWater(-250)} hitSlop={8}>
