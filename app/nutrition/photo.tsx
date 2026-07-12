@@ -23,6 +23,7 @@ import { MealType } from "@/types";
 import { AIFoodItem, AIVisionError, identifyFoodPhoto } from "@/utils/aiVision";
 import { getClaudeKey } from "@/utils/apiKeyStore";
 import { haptics } from "@/utils/haptics";
+import { resizeForVisionApi } from "@/utils/imageResize";
 
 const MEAL_TYPES: MealType[] = ["breakfast", "lunch", "dinner", "snack", "drink"];
 const MEAL_TYPE_LABELS: Record<MealType, string> = {
@@ -214,8 +215,10 @@ export default function PhotoLogScreen() {
       return;
     }
     const result = await ImagePicker.launchCameraAsync({ quality: 0.5, base64: true });
-    if (!result.canceled && result.assets[0].base64) {
-      await analyze(result.assets[0].base64, result.assets[0].uri);
+    if (!result.canceled) {
+      const asset = result.assets[0];
+      const resized = await resizeForVisionApi(asset.uri, asset.width, asset.height, asset.base64);
+      await analyze(resized, asset.uri);
     }
   };
 
@@ -230,8 +233,10 @@ export default function PhotoLogScreen() {
       quality: 0.5,
       base64: true,
     });
-    if (!result.canceled && result.assets[0].base64) {
-      await analyze(result.assets[0].base64, result.assets[0].uri);
+    if (!result.canceled) {
+      const asset = result.assets[0];
+      const resized = await resizeForVisionApi(asset.uri, asset.width, asset.height, asset.base64);
+      await analyze(resized, asset.uri);
     }
   };
 
