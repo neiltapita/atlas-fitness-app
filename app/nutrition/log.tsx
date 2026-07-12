@@ -1,5 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { PrimaryButton } from "@/components/PrimaryButton";
@@ -153,6 +163,14 @@ export default function LogFoodScreen() {
     color: colors.textPrimary,
     ...typography.body,
   },
+  computedCalories: {
+    justifyContent: "center",
+  },
+  computedCaloriesText: {
+    ...typography.body,
+    color: colors.accent,
+    fontWeight: "700",
+  },
   createLabel: {
     ...typography.tiny,
     color: colors.textTertiary,
@@ -182,7 +200,6 @@ export default function LogFoodScreen() {
     brandName: "",
     servingSize: "100",
     servingUnit: "g",
-    calories: "",
     protein: "",
     carbs: "",
     fat: "",
@@ -190,6 +207,10 @@ export default function LogFoodScreen() {
     sugar: "",
     sodium: "",
   });
+  // Calories are derived from macros (protein/carbs = 4 kcal/g, fat = 9 kcal/g)
+  // rather than entered separately, so the two can never disagree.
+  const computedCalories =
+    (parseFloat(form.protein) || 0) * 4 + (parseFloat(form.carbs) || 0) * 4 + (parseFloat(form.fat) || 0) * 9;
 
   const load = useCallback(async () => {
     setFoods(await searchFoods(db, query));
@@ -223,7 +244,7 @@ export default function LogFoodScreen() {
       brandName: form.brandName.trim() || undefined,
       servingSize: parseFloat(form.servingSize) || 100,
       servingUnit: form.servingUnit.trim() || "g",
-      calories: parseFloat(form.calories) || 0,
+      calories: computedCalories,
       protein: parseFloat(form.protein) || 0,
       carbs: parseFloat(form.carbs) || 0,
       fat: parseFloat(form.fat) || 0,
@@ -241,7 +262,11 @@ export default function LogFoodScreen() {
   const qtyNum = parseFloat(quantity) || 0;
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+    >
       <TextInput
         style={styles.searchInput}
         placeholder="Search foods..."
@@ -290,15 +315,6 @@ export default function LogFoodScreen() {
           </View>
           <View style={styles.createRow}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.createLabel}>Calories</Text>
-              <TextInput
-                style={styles.createInputHalf}
-                keyboardType="decimal-pad"
-                value={form.calories}
-                onChangeText={(t) => setForm((f) => ({ ...f, calories: t }))}
-              />
-            </View>
-            <View style={{ flex: 1 }}>
               <Text style={styles.createLabel}>Protein (g)</Text>
               <TextInput
                 style={styles.createInputHalf}
@@ -307,8 +323,6 @@ export default function LogFoodScreen() {
                 onChangeText={(t) => setForm((f) => ({ ...f, protein: t }))}
               />
             </View>
-          </View>
-          <View style={styles.createRow}>
             <View style={{ flex: 1 }}>
               <Text style={styles.createLabel}>Carbs (g)</Text>
               <TextInput
@@ -318,6 +332,8 @@ export default function LogFoodScreen() {
                 onChangeText={(t) => setForm((f) => ({ ...f, carbs: t }))}
               />
             </View>
+          </View>
+          <View style={styles.createRow}>
             <View style={{ flex: 1 }}>
               <Text style={styles.createLabel}>Fat (g)</Text>
               <TextInput
@@ -326,6 +342,12 @@ export default function LogFoodScreen() {
                 value={form.fat}
                 onChangeText={(t) => setForm((f) => ({ ...f, fat: t }))}
               />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.createLabel}>Calories (auto)</Text>
+              <View style={[styles.createInputHalf, styles.computedCalories]}>
+                <Text style={styles.computedCaloriesText}>{Math.round(computedCalories)}</Text>
+              </View>
             </View>
           </View>
           <View style={styles.createRow}>
@@ -381,6 +403,7 @@ export default function LogFoodScreen() {
       <FlatList
         data={foods}
         keyExtractor={(item) => String(item.id)}
+        keyboardShouldPersistTaps="handled"
         ListEmptyComponent={<EmptyState title="No foods found" icon="🔍" />}
         renderItem={({ item }) => (
           <Pressable style={styles.foodRow} onPress={() => setSelected(item)}>
@@ -450,6 +473,6 @@ export default function LogFoodScreen() {
           </View>
         </View>
       ) : null}
-    </View>
+    </KeyboardAvoidingView>
   );
 }

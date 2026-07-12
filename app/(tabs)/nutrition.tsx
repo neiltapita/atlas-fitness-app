@@ -185,6 +185,7 @@ export default function NutritionScreen() {
   const [date, setDate] = useState(todayDateString());
   const [summary, setSummary] = useState<DailyNutritionSummary | null>(null);
   const [weekly, setWeekly] = useState<MacroTotalsByDate[]>([]);
+  const [waterUnit, setWaterUnit] = useState<"L" | "mL" | "fl oz">("L");
 
   const load = useCallback(async () => {
     setSummary(await getDailySummary(db, date));
@@ -217,6 +218,17 @@ export default function NutritionScreen() {
     haptics.tap();
     await addWater(db, date, deltaMl);
     load();
+  };
+
+  const cycleWaterUnit = () => {
+    haptics.tap();
+    setWaterUnit((u) => (u === "L" ? "mL" : u === "mL" ? "fl oz" : "L"));
+  };
+
+  const formatWater = (ml: number) => {
+    if (waterUnit === "mL") return `${Math.round(ml)} mL`;
+    if (waterUnit === "fl oz") return `${(ml / 29.5735).toFixed(1)} fl oz`;
+    return `${(ml / 1000).toFixed(1)} L`;
   };
 
   if (!summary) return null;
@@ -289,10 +301,10 @@ export default function NutritionScreen() {
             </Card>
 
             <Card style={styles.waterCard}>
-              <View>
-                <Text style={styles.waterText}>{(summary.waterMl / 1000).toFixed(1)} L</Text>
-                <Text style={styles.waterSub}>of {(settings.waterGoalMl / 1000).toFixed(1)} L water</Text>
-              </View>
+              <Pressable onPress={cycleWaterUnit}>
+                <Text style={styles.waterText}>{formatWater(summary.waterMl)}</Text>
+                <Text style={styles.waterSub}>of {formatWater(settings.waterGoalMl)} · tap to change unit</Text>
+              </Pressable>
               <View style={styles.waterButtons}>
                 <Pressable style={styles.waterButton} onPress={() => handleWater(-250)} hitSlop={8}>
                   <Text style={styles.waterButtonText}>−</Text>
