@@ -477,9 +477,9 @@ export default function SettingsScreen() {
 
       <SectionHeader title="About" />
       <Card style={styles.aboutCard}>
-        <Text style={styles.aboutTitle}>Gym Tracker</Text>
+        <Text style={styles.aboutTitle}>Atlas</Text>
         <Text style={styles.aboutText}>
-          A personal fitness tracker. All data is stored locally on this device
+          A personal fitness platform. All data is stored locally on this device
           in SQLite. Nothing is sent anywhere unless you use AI photo logging,
           which sends just that one photo to Claude to estimate macros.
         </Text>

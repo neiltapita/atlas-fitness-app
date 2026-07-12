@@ -18,7 +18,7 @@ export interface Colors {
 }
 
 export const ACCENT_PRESETS = [
-  "#FF6B35", // orange (default)
+  "#D4AF37", // gold (default — Atlas brand accent)
   "#4B9FFF", // blue
   "#3DDC84", // green
   "#FF5A5F", // red
@@ -47,30 +47,30 @@ function contrastText(hex: string): string {
 }
 
 const darkBase: Omit<Colors, "accent" | "accentMuted" | "accentText"> = {
-  background: "#0D0D0F",
-  surface: "#1A1A1E",
-  surfaceElevated: "#232327",
-  border: "#2C2C31",
+  background: "#0B0B0C",
+  surface: "#161618",
+  surfaceElevated: "#1D1D20",
+  border: "#242428",
   success: "#3DDC84",
   danger: "#FF5A5F",
-  warning: "#FFC24B",
-  textPrimary: "#F5F5F7",
-  textSecondary: "#A0A0A8",
-  textTertiary: "#6B6B72",
+  warning: "#D97706",
+  textPrimary: "#FFFFFF",
+  textSecondary: "#B8B8C0",
+  textTertiary: "#6E6E76",
   overlay: "rgba(0,0,0,0.6)",
 };
 
 const lightBase: Omit<Colors, "accent" | "accentMuted" | "accentText"> = {
-  background: "#F5F5F7",
+  background: "#F5F5F5",
   surface: "#FFFFFF",
-  surfaceElevated: "#F0F0F2",
-  border: "#E0E0E3",
+  surfaceElevated: "#F0F0F1",
+  border: "#E4E4E7",
   success: "#1FAA5F",
   danger: "#E23F45",
-  warning: "#C98A1E",
-  textPrimary: "#16161A",
-  textSecondary: "#55555C",
-  textTertiary: "#8A8A91",
+  warning: "#B5790A",
+  textPrimary: "#0B0B0C",
+  textSecondary: "#6B6B76",
+  textTertiary: "#9A9AA2",
   overlay: "rgba(0,0,0,0.3)",
 };
 
@@ -84,7 +84,7 @@ export function getColors(mode: ThemeMode, accent: string): Colors {
   };
 }
 
-// Default (dark, orange accent) colors — used only as a fallback before
+// Default (dark, gold accent) colors — used only as a fallback before
 // settings load. Screens should get live colors from useTheme().
 export const colors: Colors = getColors("dark", ACCENT_PRESETS[0]);
 

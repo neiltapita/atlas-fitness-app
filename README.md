@@ -1,6 +1,6 @@
-# Gym Tracker
+# Atlas
 
-A personal, fully offline workout tracker for iPhone, inspired by Strong. Built with
+A personal, offline-first fitness platform for iPhone. Built with
 Expo, React Native, TypeScript, Expo Router, and a local SQLite database. There is no
 backend, no login, and no network calls — everything lives on your phone.
 

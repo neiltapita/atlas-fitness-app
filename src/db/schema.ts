@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS usersettings (
   units TEXT NOT NULL DEFAULT 'lb',
   default_rest_seconds INTEGER NOT NULL DEFAULT 90,
   theme TEXT NOT NULL DEFAULT 'dark',
-  accent_color TEXT NOT NULL DEFAULT '#FF6B35'
+  accent_color TEXT NOT NULL DEFAULT '#D4AF37'
 );
 
 CREATE TABLE IF NOT EXISTS exercises (
@@ -179,4 +179,8 @@ export const MIGRATIONS_SQL: string[] = [
   `ALTER TABLE usersettings ADD COLUMN water_goal_ml INTEGER NOT NULL DEFAULT 2500;`,
   `ALTER TABLE usersettings ADD COLUMN water_unit TEXT NOT NULL DEFAULT 'mL';`,
   `ALTER TABLE usersettings ADD COLUMN tab_order TEXT;`,
+  // Atlas rebrand: move installs still on the old default orange accent to
+  // the new gold brand color. Anyone who picked a different accent already
+  // keeps their choice.
+  `UPDATE usersettings SET accent_color = '#D4AF37' WHERE id = 1 AND accent_color = '#FF6B35';`,
 ];

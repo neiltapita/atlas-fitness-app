@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "Gym Tracker",
+    "name": "Atlas",
     "slug": "gym-tracker",
     "scheme": "gymtracker",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
-    "backgroundColor": "#0D0D0F",
+    "backgroundColor": "#0B0B0C",
     "newArchEnabled": true,
     "icon": "./assets/icon.png",
     "assetBundlePatterns": [
@@ -19,7 +19,7 @@
     "android": {
       "package": "com.neiltapita.gymtracker",
       "adaptiveIcon": {
-        "backgroundColor": "#0D0D0F",
+        "backgroundColor": "#0B0B0C",
         "foregroundImage": "./assets/adaptive-icon.png"
       },
       "permissions": [
@@ -32,8 +32,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow Gym Tracker to access your photos to log a meal from a picture.",
-          "cameraPermission": "Allow Gym Tracker to use your camera to snap a photo of your meal for automatic macro estimation."
+          "photosPermission": "Allow Atlas to access your photos to log a meal from a picture.",
+          "cameraPermission": "Allow Atlas to use your camera to snap a photo of your meal for automatic macro estimation."
         }
       ]
     ],

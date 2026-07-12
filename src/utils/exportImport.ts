@@ -39,7 +39,7 @@ export async function exportWorkoutData(db: SQLiteDatabase): Promise<string> {
   if (await Sharing.isAvailableAsync()) {
     await Sharing.shareAsync(fileUri, {
       mimeType: "application/json",
-      dialogTitle: "Export Gym Tracker Data",
+      dialogTitle: "Export Atlas Data",
       UTI: "public.json",
     });
   }
