@@ -105,6 +105,13 @@ export default function SettingsScreen() {
     width: 90,
     textAlign: "center",
   },
+  computedCalorieValue: {
+    ...typography.body,
+    color: colors.accent,
+    fontWeight: "700",
+    width: 90,
+    textAlign: "center",
+  },
 }),
     [colors]
   );
@@ -112,7 +119,6 @@ export default function SettingsScreen() {
   const { settings, setUnits, setTheme, setAccentColor, setNutritionGoals } = useSettings();
   const [busy, setBusy] = useState(false);
   const [goals, setGoals] = useState({
-    dailyCalorieGoal: String(settings.dailyCalorieGoal),
     proteinGoalG: String(settings.proteinGoalG),
     carbGoalG: String(settings.carbGoalG),
     fatGoalG: String(settings.fatGoalG),
@@ -121,7 +127,6 @@ export default function SettingsScreen() {
 
   useEffect(() => {
     setGoals({
-      dailyCalorieGoal: String(settings.dailyCalorieGoal),
       proteinGoalG: String(settings.proteinGoalG),
       carbGoalG: String(settings.carbGoalG),
       fatGoalG: String(settings.fatGoalG),
@@ -129,9 +134,17 @@ export default function SettingsScreen() {
     });
   }, [settings]);
 
+  // Daily calorie goal is derived from the macro goals (protein/carbs = 4
+  // kcal/g, fat = 9 kcal/g) rather than entered separately, so they can
+  // never disagree.
+  const computedCalorieGoal =
+    (parseInt(goals.proteinGoalG, 10) || 0) * 4 +
+    (parseInt(goals.carbGoalG, 10) || 0) * 4 +
+    (parseInt(goals.fatGoalG, 10) || 0) * 9;
+
   const commitGoals = () => {
     setNutritionGoals({
-      dailyCalorieGoal: parseInt(goals.dailyCalorieGoal, 10) || settings.dailyCalorieGoal,
+      dailyCalorieGoal: computedCalorieGoal,
       proteinGoalG: parseInt(goals.proteinGoalG, 10) || settings.proteinGoalG,
       carbGoalG: parseInt(goals.carbGoalG, 10) || settings.carbGoalG,
       fatGoalG: parseInt(goals.fatGoalG, 10) || settings.fatGoalG,
@@ -228,16 +241,6 @@ export default function SettingsScreen() {
       <SectionHeader title="Nutrition Goals" />
       <Card style={styles.goalsCard}>
         <View style={styles.goalRow}>
-          <Text style={styles.goalLabel}>Daily Calories</Text>
-          <TextInput
-            style={styles.goalInput}
-            keyboardType="number-pad"
-            value={goals.dailyCalorieGoal}
-            onChangeText={(t) => setGoals((g) => ({ ...g, dailyCalorieGoal: t }))}
-            onEndEditing={commitGoals}
-          />
-        </View>
-        <View style={styles.goalRow}>
           <Text style={styles.goalLabel}>Protein (g)</Text>
           <TextInput
             style={styles.goalInput}
@@ -266,6 +269,10 @@ export default function SettingsScreen() {
             onChangeText={(t) => setGoals((g) => ({ ...g, fatGoalG: t }))}
             onEndEditing={commitGoals}
           />
+        </View>
+        <View style={styles.goalRow}>
+          <Text style={styles.goalLabel}>Daily Calories (auto)</Text>
+          <Text style={styles.computedCalorieValue}>{computedCalorieGoal}</Text>
         </View>
         <View style={styles.goalRow}>
           <Text style={styles.goalLabel}>Water (mL)</Text>

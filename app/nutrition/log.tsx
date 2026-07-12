@@ -163,6 +163,9 @@ export default function LogFoodScreen() {
     color: colors.textPrimary,
     ...typography.body,
   },
+  resultsList: {
+    flex: 1,
+  },
   computedCalories: {
     justifyContent: "center",
   },
@@ -401,6 +404,7 @@ export default function LogFoodScreen() {
       )}
 
       <FlatList
+        style={styles.resultsList}
         data={foods}
         keyExtractor={(item) => String(item.id)}
         keyboardShouldPersistTaps="handled"
