@@ -111,6 +111,11 @@ export function SetRow({ set, setIndex, unit, onChange, onDelete, onComplete }: 
     [colors]
   );
   const [showNotes, setShowNotes] = useState(!!set.notes);
+  // Local drafts so a trailing "." (or "8.50") isn't immediately stripped by
+  // re-deriving the displayed value from the parsed number on every
+  // keystroke, which made decimal weight/RPE impossible to type.
+  const [weightText, setWeightText] = useState(set.weight ? String(set.weight) : "");
+  const [rpeText, setRpeText] = useState(set.rpe != null ? String(set.rpe) : "");
   const checkScale = useSharedValue(1);
 
   const checkAnimatedStyle = useAnimatedStyle(() => ({
@@ -144,8 +149,11 @@ export function SetRow({ set, setIndex, unit, onChange, onDelete, onComplete }: 
           keyboardType="decimal-pad"
           placeholder="0"
           placeholderTextColor={colors.textTertiary}
-          value={set.weight ? String(set.weight) : ""}
-          onChangeText={(t) => onChange({ weight: parseFloat(t) || 0 })}
+          value={weightText}
+          onChangeText={(t) => {
+            setWeightText(t);
+            onChange({ weight: parseFloat(t) || 0 });
+          }}
         />
         <Text style={styles.unitLabel}>{unit}</Text>
 
@@ -164,8 +172,11 @@ export function SetRow({ set, setIndex, unit, onChange, onDelete, onComplete }: 
           keyboardType="decimal-pad"
           placeholder="RPE"
           placeholderTextColor={colors.textTertiary}
-          value={set.rpe != null ? String(set.rpe) : ""}
-          onChangeText={(t) => onChange({ rpe: t ? parseFloat(t) : null })}
+          value={rpeText}
+          onChangeText={(t) => {
+            setRpeText(t);
+            onChange({ rpe: t ? parseFloat(t) : null });
+          }}
         />
 
         <AnimatedPressable

@@ -6,9 +6,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  StyleProp,
   StyleSheet,
   Text,
   TextInput,
+  TextStyle,
   View,
 } from "react-native";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
@@ -33,6 +35,36 @@ import {
 } from "@/db/queries";
 import { TemplateExerciseWithSets, WorkoutTemplateDetail } from "@/types";
 import { haptics } from "@/utils/haptics";
+
+// Keeps its own draft text so a trailing "." (or "82.50") isn't immediately
+// stripped by re-deriving the displayed value from the parsed number on
+// every keystroke, which made decimal weights impossible to type.
+function WeightInput({
+  value,
+  onChangeValue,
+  style,
+  placeholderTextColor,
+}: {
+  value: number;
+  onChangeValue: (value: number) => void;
+  style: StyleProp<TextStyle>;
+  placeholderTextColor: string;
+}) {
+  const [text, setText] = useState(value ? String(value) : "");
+  return (
+    <TextInput
+      style={style}
+      keyboardType="decimal-pad"
+      placeholder="0"
+      placeholderTextColor={placeholderTextColor}
+      value={text}
+      onChangeText={(t) => {
+        setText(t);
+        onChangeValue(parseFloat(t) || 0);
+      }}
+    />
+  );
+}
 
 export default function TemplateDetailScreen() {
   const { colors } = useTheme();
@@ -377,13 +409,11 @@ export default function TemplateDetailScreen() {
                 >
                   <Text style={styles.setNumberText}>{set.isWarmup ? "W" : idx + 1}</Text>
                 </Pressable>
-                <TextInput
+                <WeightInput
                   style={styles.input}
-                  keyboardType="decimal-pad"
-                  placeholder="0"
                   placeholderTextColor={colors.textTertiary}
-                  value={set.weight ? String(set.weight) : ""}
-                  onChangeText={(t) => handleSetFieldChange(item.id, set.id, { weight: parseFloat(t) || 0 })}
+                  value={set.weight}
+                  onChangeValue={(weight) => handleSetFieldChange(item.id, set.id, { weight })}
                 />
                 <TextInput
                   style={styles.input}
