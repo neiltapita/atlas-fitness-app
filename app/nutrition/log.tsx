@@ -135,14 +135,18 @@ export default function LogFoodScreen() {
     color: colors.textSecondary,
   },
   createForm: {
+    flex: 1,
     margin: spacing.lg,
     marginTop: 0,
     backgroundColor: colors.surface,
     borderRadius: radii.md,
     borderWidth: 1,
     borderColor: colors.border,
+  },
+  createFormContent: {
     padding: spacing.md,
     gap: spacing.sm,
+    paddingBottom: spacing.xl,
   },
   createInput: {
     backgroundColor: colors.surfaceElevated,
@@ -279,7 +283,11 @@ export default function LogFoodScreen() {
       />
 
       {showCreate ? (
-        <ScrollView style={styles.createForm}>
+        <ScrollView
+          style={styles.createForm}
+          contentContainerStyle={styles.createFormContent}
+          keyboardShouldPersistTaps="handled"
+        >
           <Text style={styles.createLabel}>Name</Text>
           <TextInput
             style={styles.createInput}
@@ -403,6 +411,7 @@ export default function LogFoodScreen() {
         />
       )}
 
+      {showCreate ? null : (
       <FlatList
         style={styles.resultsList}
         data={foods}
@@ -429,6 +438,7 @@ export default function LogFoodScreen() {
           </Pressable>
         )}
       />
+      )}
 
       {selected ? (
         <View style={styles.logPanel}>
