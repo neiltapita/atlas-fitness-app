@@ -14,7 +14,12 @@
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.neiltapita.gymtracker"
+      "bundleIdentifier": "com.neiltapita.gymtracker",
+      "icon": {
+        "light": "./assets/icon-light.png",
+        "dark": "./assets/icon-dark.png",
+        "tinted": "./assets/icon-tinted.png"
+      }
     },
     "android": {
       "package": "com.neiltapita.gymtracker",
