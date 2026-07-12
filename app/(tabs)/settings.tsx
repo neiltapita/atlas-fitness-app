@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { ActionSheetIOS, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useSQLiteContext } from "expo-sqlite";
 import { Card } from "@/components/Card";
 import { PrimaryButton } from "@/components/PrimaryButton";
@@ -8,6 +9,7 @@ import { ACCENT_PRESETS, radii, spacing, typography } from "@/constants/theme";
 import { useTheme } from "@/context/ThemeContext";
 import { useSettings } from "@/context/SettingsContext";
 import { WaterUnit } from "@/types";
+import { getTabConfig, normalizeTabOrder } from "@/constants/tabs";
 import { getClaudeKey, setClaudeKey } from "@/utils/apiKeyStore";
 import { exportWorkoutData, pickAndImportWorkoutData } from "@/utils/exportImport";
 import { haptics } from "@/utils/haptics";
@@ -149,11 +151,61 @@ export default function SettingsScreen() {
     ...typography.tiny,
     color: colors.success,
   },
+  tabOrderCard: {
+    gap: spacing.xs,
+  },
+  tabOrderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  tabOrderLabelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  tabOrderLabel: {
+    ...typography.body,
+    color: colors.textPrimary,
+  },
+  tabOrderButtons: {
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  tabOrderButton: {
+    width: 32,
+    height: 32,
+    borderRadius: radii.sm,
+    backgroundColor: colors.surfaceElevated,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tabOrderButtonDisabled: {
+    opacity: 0.3,
+  },
+  tabOrderButtonText: {
+    ...typography.headline,
+    color: colors.accent,
+  },
 }),
     [colors]
   );
   const db = useSQLiteContext();
-  const { settings, setUnits, setTheme, setAccentColor, setWaterUnit, setNutritionGoals } = useSettings();
+  const { settings, setUnits, setTheme, setAccentColor, setWaterUnit, setTabOrder, setNutritionGoals } =
+    useSettings();
+  const tabOrder = normalizeTabOrder(settings.tabOrder);
+
+  const moveTab = (index: number, direction: -1 | 1) => {
+    const target = index + direction;
+    if (target < 0 || target >= tabOrder.length) return;
+    haptics.tap();
+    const next = [...tabOrder];
+    [next[index], next[target]] = [next[target], next[index]];
+    setTabOrder(next);
+  };
   const [busy, setBusy] = useState(false);
   const [apiKeyInput, setApiKeyInput] = useState("");
   const [hasApiKey, setHasApiKey] = useState(false);
@@ -284,6 +336,42 @@ export default function SettingsScreen() {
             {settings.accentColor === preset ? <Text style={styles.swatchCheck}>✓</Text> : null}
           </Pressable>
         ))}
+      </Card>
+
+      <SectionHeader title="Tab Order" />
+      <Card style={styles.tabOrderCard}>
+        {tabOrder.map((key, index) => {
+          const tab = getTabConfig(key);
+          return (
+            <View key={key} style={styles.tabOrderRow}>
+              <View style={styles.tabOrderLabelRow}>
+                <Ionicons name={tab.icon} size={18} color={colors.textSecondary} />
+                <Text style={styles.tabOrderLabel}>{tab.title}</Text>
+              </View>
+              <View style={styles.tabOrderButtons}>
+                <Pressable
+                  style={[styles.tabOrderButton, index === 0 && styles.tabOrderButtonDisabled]}
+                  onPress={() => moveTab(index, -1)}
+                  disabled={index === 0}
+                  hitSlop={8}
+                >
+                  <Text style={styles.tabOrderButtonText}>↑</Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.tabOrderButton,
+                    index === tabOrder.length - 1 && styles.tabOrderButtonDisabled,
+                  ]}
+                  onPress={() => moveTab(index, 1)}
+                  disabled={index === tabOrder.length - 1}
+                  hitSlop={8}
+                >
+                  <Text style={styles.tabOrderButtonText}>↓</Text>
+                </Pressable>
+              </View>
+            </View>
+          );
+        })}
       </Card>
 
       <SectionHeader title="Units" />

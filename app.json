@@ -8,6 +8,7 @@
     "userInterfaceStyle": "dark",
     "backgroundColor": "#0D0D0F",
     "newArchEnabled": true,
+    "icon": "./assets/icon.png",
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -18,7 +19,8 @@
     "android": {
       "package": "com.neiltapita.gymtracker",
       "adaptiveIcon": {
-        "backgroundColor": "#0D0D0F"
+        "backgroundColor": "#0D0D0F",
+        "foregroundImage": "./assets/adaptive-icon.png"
       },
       "permissions": [
         "VIBRATE"

@@ -178,4 +178,5 @@ export const MIGRATIONS_SQL: string[] = [
   `ALTER TABLE usersettings ADD COLUMN fat_goal_g INTEGER NOT NULL DEFAULT 70;`,
   `ALTER TABLE usersettings ADD COLUMN water_goal_ml INTEGER NOT NULL DEFAULT 2500;`,
   `ALTER TABLE usersettings ADD COLUMN water_unit TEXT NOT NULL DEFAULT 'mL';`,
+  `ALTER TABLE usersettings ADD COLUMN tab_order TEXT;`,
 ];

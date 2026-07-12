@@ -84,6 +84,7 @@ export interface UserSettings {
   fatGoalG: number;
   waterGoalMl: number;
   waterUnit: WaterUnit;
+  tabOrder: string[];
 }
 
 export type MealType = "breakfast" | "lunch" | "dinner" | "snack" | "drink";

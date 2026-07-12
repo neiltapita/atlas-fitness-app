@@ -2,15 +2,18 @@ import React from "react";
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/context/ThemeContext";
+import { useSettings } from "@/context/SettingsContext";
+import { getTabConfig, normalizeTabOrder } from "@/constants/tabs";
 
-type IconName = keyof typeof Ionicons.glyphMap;
-
-function TabIcon({ name, color, size }: { name: IconName; color: string; size: number }) {
+function TabIcon({ name, color, size }: { name: keyof typeof Ionicons.glyphMap; color: string; size: number }) {
   return <Ionicons name={name} color={color} size={size} />;
 }
 
 export default function TabsLayout() {
   const { colors } = useTheme();
+  const { settings } = useSettings();
+  const order = normalizeTabOrder(settings.tabOrder);
+
   return (
     <Tabs
       screenOptions={{
@@ -25,58 +28,19 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: colors.textTertiary,
       }}
     >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-          tabBarIcon: ({ color, size }) => <TabIcon name="home" color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="workout"
-        options={{
-          title: "Workout",
-          tabBarIcon: ({ color, size }) => (
-            <TabIcon name="barbell" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="nutrition"
-        options={{
-          title: "Nutrition",
-          tabBarIcon: ({ color, size }) => (
-            <TabIcon name="nutrition" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="history"
-        options={{
-          title: "History",
-          tabBarIcon: ({ color, size }) => (
-            <TabIcon name="calendar" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="progress"
-        options={{
-          title: "Progress",
-          tabBarIcon: ({ color, size }) => (
-            <TabIcon name="trending-up" color={color} size={size} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: "Settings",
-          tabBarIcon: ({ color, size }) => (
-            <TabIcon name="settings" color={color} size={size} />
-          ),
-        }}
-      />
+      {order.map((key) => {
+        const tab = getTabConfig(key);
+        return (
+          <Tabs.Screen
+            key={tab.key}
+            name={tab.key}
+            options={{
+              title: tab.title,
+              tabBarIcon: ({ color, size }) => <TabIcon name={tab.icon} color={color} size={size} />,
+            }}
+          />
+        );
+      })}
     </Tabs>
   );
 }

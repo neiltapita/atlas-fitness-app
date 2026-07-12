@@ -16,6 +16,7 @@ import {
   WorkoutTemplateDetail,
   ExerciseHistoryPoint,
 } from "@/types";
+import { normalizeTabOrder } from "@/constants/tabs";
 import { epley1RM } from "@/utils/calculations";
 
 // ---------- Row shapes coming back from SQLite (snake_case) ----------
@@ -768,6 +769,7 @@ export async function getSettings(db: SQLiteDatabase): Promise<UserSettings> {
     fat_goal_g: number;
     water_goal_ml: number;
     water_unit: string;
+    tab_order: string | null;
   }>(`SELECT * FROM usersettings WHERE id = 1;`);
   if (!row) {
     return {
@@ -782,7 +784,16 @@ export async function getSettings(db: SQLiteDatabase): Promise<UserSettings> {
       fatGoalG: 70,
       waterGoalMl: 2500,
       waterUnit: "mL",
+      tabOrder: normalizeTabOrder(null),
     };
+  }
+  let parsedTabOrder: string[] | null = null;
+  if (row.tab_order) {
+    try {
+      parsedTabOrder = JSON.parse(row.tab_order);
+    } catch {
+      parsedTabOrder = null;
+    }
   }
   return {
     id: row.id,
@@ -796,6 +807,7 @@ export async function getSettings(db: SQLiteDatabase): Promise<UserSettings> {
     fatGoalG: row.fat_goal_g ?? 70,
     waterGoalMl: row.water_goal_ml ?? 2500,
     waterUnit: (row.water_unit as UserSettings["waterUnit"]) ?? "mL",
+    tabOrder: normalizeTabOrder(parsedTabOrder),
   };
 }
 
@@ -814,11 +826,16 @@ export async function updateSettings(
       | "fatGoalG"
       | "waterGoalMl"
       | "waterUnit"
+      | "tabOrder"
     >
   >
 ): Promise<void> {
   const clauses: string[] = [];
   const values: (string | number)[] = [];
+  if (fields.tabOrder !== undefined) {
+    clauses.push("tab_order = ?");
+    values.push(JSON.stringify(fields.tabOrder));
+  }
   if (fields.units !== undefined) {
     clauses.push("units = ?");
     values.push(fields.units);

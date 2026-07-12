@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import { useSQLiteContext } from "expo-sqlite";
 import { UserSettings, WaterUnit } from "@/types";
 import { getSettings, updateSettings } from "@/db/queries";
+import { DEFAULT_TAB_ORDER } from "@/constants/tabs";
 
 interface SettingsContextValue {
   settings: UserSettings;
@@ -11,6 +12,7 @@ interface SettingsContextValue {
   setTheme: (theme: "dark" | "light") => Promise<void>;
   setAccentColor: (color: string) => Promise<void>;
   setWaterUnit: (unit: WaterUnit) => Promise<void>;
+  setTabOrder: (order: string[]) => Promise<void>;
   setNutritionGoals: (goals: {
     dailyCalorieGoal: number;
     proteinGoalG: number;
@@ -33,6 +35,7 @@ const defaultSettings: UserSettings = {
   fatGoalG: 70,
   waterGoalMl: 2500,
   waterUnit: "mL",
+  tabOrder: DEFAULT_TAB_ORDER,
 };
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
@@ -92,6 +95,14 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     [db]
   );
 
+  const setTabOrder = useCallback(
+    async (tabOrder: string[]) => {
+      await updateSettings(db, { tabOrder });
+      setSettings((prev) => ({ ...prev, tabOrder }));
+    },
+    [db]
+  );
+
   const setNutritionGoals = useCallback(
     async (goals: {
       dailyCalorieGoal: number;
@@ -116,6 +127,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         setTheme,
         setAccentColor,
         setWaterUnit,
+        setTabOrder,
         setNutritionGoals,
         refresh,
       }}
