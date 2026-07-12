@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useState, useMemo } from "react";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useSQLiteContext } from "expo-sqlite";
 import { Card } from "@/components/Card";
 import { PrimaryButton } from "@/components/PrimaryButton";
@@ -83,12 +83,61 @@ export default function SettingsScreen() {
     color: "#FFFFFF",
     fontWeight: "800",
   },
+  goalsCard: {
+    gap: spacing.md,
+  },
+  goalRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  goalLabel: {
+    ...typography.body,
+    color: colors.textPrimary,
+  },
+  goalInput: {
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: radii.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    color: colors.textPrimary,
+    ...typography.body,
+    width: 90,
+    textAlign: "center",
+  },
 }),
     [colors]
   );
   const db = useSQLiteContext();
-  const { settings, setUnits, setTheme, setAccentColor } = useSettings();
+  const { settings, setUnits, setTheme, setAccentColor, setNutritionGoals } = useSettings();
   const [busy, setBusy] = useState(false);
+  const [goals, setGoals] = useState({
+    dailyCalorieGoal: String(settings.dailyCalorieGoal),
+    proteinGoalG: String(settings.proteinGoalG),
+    carbGoalG: String(settings.carbGoalG),
+    fatGoalG: String(settings.fatGoalG),
+    waterGoalMl: String(settings.waterGoalMl),
+  });
+
+  useEffect(() => {
+    setGoals({
+      dailyCalorieGoal: String(settings.dailyCalorieGoal),
+      proteinGoalG: String(settings.proteinGoalG),
+      carbGoalG: String(settings.carbGoalG),
+      fatGoalG: String(settings.fatGoalG),
+      waterGoalMl: String(settings.waterGoalMl),
+    });
+  }, [settings]);
+
+  const commitGoals = () => {
+    setNutritionGoals({
+      dailyCalorieGoal: parseInt(goals.dailyCalorieGoal, 10) || settings.dailyCalorieGoal,
+      proteinGoalG: parseInt(goals.proteinGoalG, 10) || settings.proteinGoalG,
+      carbGoalG: parseInt(goals.carbGoalG, 10) || settings.carbGoalG,
+      fatGoalG: parseInt(goals.fatGoalG, 10) || settings.fatGoalG,
+      waterGoalMl: parseInt(goals.waterGoalMl, 10) || settings.waterGoalMl,
+    });
+  };
 
   const handleExport = async () => {
     setBusy(true);
@@ -174,6 +223,60 @@ export default function SettingsScreen() {
             style={styles.unitButton}
           />
         ))}
+      </Card>
+
+      <SectionHeader title="Nutrition Goals" />
+      <Card style={styles.goalsCard}>
+        <View style={styles.goalRow}>
+          <Text style={styles.goalLabel}>Daily Calories</Text>
+          <TextInput
+            style={styles.goalInput}
+            keyboardType="number-pad"
+            value={goals.dailyCalorieGoal}
+            onChangeText={(t) => setGoals((g) => ({ ...g, dailyCalorieGoal: t }))}
+            onEndEditing={commitGoals}
+          />
+        </View>
+        <View style={styles.goalRow}>
+          <Text style={styles.goalLabel}>Protein (g)</Text>
+          <TextInput
+            style={styles.goalInput}
+            keyboardType="number-pad"
+            value={goals.proteinGoalG}
+            onChangeText={(t) => setGoals((g) => ({ ...g, proteinGoalG: t }))}
+            onEndEditing={commitGoals}
+          />
+        </View>
+        <View style={styles.goalRow}>
+          <Text style={styles.goalLabel}>Carbs (g)</Text>
+          <TextInput
+            style={styles.goalInput}
+            keyboardType="number-pad"
+            value={goals.carbGoalG}
+            onChangeText={(t) => setGoals((g) => ({ ...g, carbGoalG: t }))}
+            onEndEditing={commitGoals}
+          />
+        </View>
+        <View style={styles.goalRow}>
+          <Text style={styles.goalLabel}>Fat (g)</Text>
+          <TextInput
+            style={styles.goalInput}
+            keyboardType="number-pad"
+            value={goals.fatGoalG}
+            onChangeText={(t) => setGoals((g) => ({ ...g, fatGoalG: t }))}
+            onEndEditing={commitGoals}
+          />
+        </View>
+        <View style={styles.goalRow}>
+          <Text style={styles.goalLabel}>Water (mL)</Text>
+          <TextInput
+            style={styles.goalInput}
+            keyboardType="number-pad"
+            value={goals.waterGoalMl}
+            onChangeText={(t) => setGoals((g) => ({ ...g, waterGoalMl: t }))}
+            onEndEditing={commitGoals}
+          />
+        </View>
       </Card>
 
       <SectionHeader title="Data" />

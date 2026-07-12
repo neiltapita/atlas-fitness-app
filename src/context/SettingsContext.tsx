@@ -10,6 +10,13 @@ interface SettingsContextValue {
   setDefaultRestSeconds: (seconds: number) => Promise<void>;
   setTheme: (theme: "dark" | "light") => Promise<void>;
   setAccentColor: (color: string) => Promise<void>;
+  setNutritionGoals: (goals: {
+    dailyCalorieGoal: number;
+    proteinGoalG: number;
+    carbGoalG: number;
+    fatGoalG: number;
+    waterGoalMl: number;
+  }) => Promise<void>;
   refresh: () => Promise<void>;
 }
 
@@ -19,6 +26,11 @@ const defaultSettings: UserSettings = {
   defaultRestSeconds: 90,
   theme: "dark",
   accentColor: "#FF6B35",
+  dailyCalorieGoal: 2200,
+  proteinGoalG: 150,
+  carbGoalG: 220,
+  fatGoalG: 70,
+  waterGoalMl: 2500,
 };
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
@@ -70,9 +82,32 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     [db]
   );
 
+  const setNutritionGoals = useCallback(
+    async (goals: {
+      dailyCalorieGoal: number;
+      proteinGoalG: number;
+      carbGoalG: number;
+      fatGoalG: number;
+      waterGoalMl: number;
+    }) => {
+      await updateSettings(db, goals);
+      setSettings((prev) => ({ ...prev, ...goals }));
+    },
+    [db]
+  );
+
   return (
     <SettingsContext.Provider
-      value={{ settings, loading, setUnits, setDefaultRestSeconds, setTheme, setAccentColor, refresh }}
+      value={{
+        settings,
+        loading,
+        setUnits,
+        setDefaultRestSeconds,
+        setTheme,
+        setAccentColor,
+        setNutritionGoals,
+        refresh,
+      }}
     >
       {children}
     </SettingsContext.Provider>

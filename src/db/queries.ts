@@ -762,9 +762,25 @@ export async function getSettings(db: SQLiteDatabase): Promise<UserSettings> {
     default_rest_seconds: number;
     theme: string;
     accent_color: string;
+    daily_calorie_goal: number;
+    protein_goal_g: number;
+    carb_goal_g: number;
+    fat_goal_g: number;
+    water_goal_ml: number;
   }>(`SELECT * FROM usersettings WHERE id = 1;`);
   if (!row) {
-    return { id: 1, units: "lb", defaultRestSeconds: 90, theme: "dark", accentColor: "#FF6B35" };
+    return {
+      id: 1,
+      units: "lb",
+      defaultRestSeconds: 90,
+      theme: "dark",
+      accentColor: "#FF6B35",
+      dailyCalorieGoal: 2200,
+      proteinGoalG: 150,
+      carbGoalG: 220,
+      fatGoalG: 70,
+      waterGoalMl: 2500,
+    };
   }
   return {
     id: row.id,
@@ -772,12 +788,30 @@ export async function getSettings(db: SQLiteDatabase): Promise<UserSettings> {
     defaultRestSeconds: row.default_rest_seconds,
     theme: row.theme as "dark" | "light",
     accentColor: row.accent_color ?? "#FF6B35",
+    dailyCalorieGoal: row.daily_calorie_goal ?? 2200,
+    proteinGoalG: row.protein_goal_g ?? 150,
+    carbGoalG: row.carb_goal_g ?? 220,
+    fatGoalG: row.fat_goal_g ?? 70,
+    waterGoalMl: row.water_goal_ml ?? 2500,
   };
 }
 
 export async function updateSettings(
   db: SQLiteDatabase,
-  fields: Partial<Pick<UserSettings, "units" | "defaultRestSeconds" | "theme" | "accentColor">>
+  fields: Partial<
+    Pick<
+      UserSettings,
+      | "units"
+      | "defaultRestSeconds"
+      | "theme"
+      | "accentColor"
+      | "dailyCalorieGoal"
+      | "proteinGoalG"
+      | "carbGoalG"
+      | "fatGoalG"
+      | "waterGoalMl"
+    >
+  >
 ): Promise<void> {
   const clauses: string[] = [];
   const values: (string | number)[] = [];
@@ -796,6 +830,26 @@ export async function updateSettings(
   if (fields.accentColor !== undefined) {
     clauses.push("accent_color = ?");
     values.push(fields.accentColor);
+  }
+  if (fields.dailyCalorieGoal !== undefined) {
+    clauses.push("daily_calorie_goal = ?");
+    values.push(fields.dailyCalorieGoal);
+  }
+  if (fields.proteinGoalG !== undefined) {
+    clauses.push("protein_goal_g = ?");
+    values.push(fields.proteinGoalG);
+  }
+  if (fields.carbGoalG !== undefined) {
+    clauses.push("carb_goal_g = ?");
+    values.push(fields.carbGoalG);
+  }
+  if (fields.fatGoalG !== undefined) {
+    clauses.push("fat_goal_g = ?");
+    values.push(fields.fatGoalG);
+  }
+  if (fields.waterGoalMl !== undefined) {
+    clauses.push("water_goal_ml = ?");
+    values.push(fields.waterGoalMl);
   }
   if (clauses.length === 0) return;
   await db.runAsync(`UPDATE usersettings SET ${clauses.join(", ")} WHERE id = 1;`, values);

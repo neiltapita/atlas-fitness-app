@@ -76,6 +76,84 @@ export interface UserSettings {
   defaultRestSeconds: number;
   theme: "dark" | "light";
   accentColor: string;
+  dailyCalorieGoal: number;
+  proteinGoalG: number;
+  carbGoalG: number;
+  fatGoalG: number;
+  waterGoalMl: number;
+}
+
+export type MealType = "breakfast" | "lunch" | "dinner" | "snack" | "drink";
+
+export interface Macros {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  fiber: number;
+  sugar: number;
+  sodium: number;
+}
+
+export interface FoodBrand {
+  id: number;
+  name: string;
+}
+
+export interface Food extends Macros {
+  id: number;
+  name: string;
+  brandId: number | null;
+  brandName?: string;
+  servingSize: number;
+  servingUnit: string;
+  isCustom: boolean;
+  isFavorite: boolean;
+}
+
+export interface Meal {
+  id: number;
+  name: string;
+  createdAt: string;
+}
+
+export interface MealItem {
+  id: number;
+  mealId: number;
+  foodId: number;
+  quantity: number;
+  orderIndex: number;
+  // joined
+  foodName?: string;
+  servingSize?: number;
+  servingUnit?: string;
+}
+
+export interface MealDetail extends Meal {
+  items: MealItem[];
+  totals: Macros;
+}
+
+export interface NutritionEntry extends Macros {
+  id: number;
+  date: string;
+  loggedAt: string;
+  mealType: MealType;
+  foodId: number | null;
+  mealId: number | null;
+  quantity: number;
+  // joined
+  label: string;
+}
+
+export interface DailyNutritionSummary extends Macros {
+  date: string;
+  waterMl: number;
+  entries: NutritionEntry[];
+}
+
+export interface MacroTotalsByDate extends Macros {
+  date: string;
 }
 
 export interface WorkoutTemplate {
