@@ -1179,5 +1179,12 @@ export async function wipeAllData(db: SQLiteDatabase): Promise<void> {
     DELETE FROM personal_records;
     DELETE FROM workouts;
     DELETE FROM bodyweight_entries;
+    DELETE FROM template_sets;
+    DELETE FROM template_exercises;
+    DELETE FROM workout_templates;
+    DELETE FROM nutrition_entries;
+    DELETE FROM meal_items;
+    DELETE FROM meals;
+    DELETE FROM daily_logs;
   `);
 }
