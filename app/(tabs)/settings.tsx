@@ -8,6 +8,7 @@ import { ACCENT_PRESETS, radii, spacing, typography } from "@/constants/theme";
 import { useTheme } from "@/context/ThemeContext";
 import { useSettings } from "@/context/SettingsContext";
 import { WaterUnit } from "@/types";
+import { getClaudeKey, setClaudeKey } from "@/utils/apiKeyStore";
 import { exportWorkoutData, pickAndImportWorkoutData } from "@/utils/exportImport";
 import { haptics } from "@/utils/haptics";
 import { mlToUnit, unitToMl } from "@/utils/water";
@@ -134,12 +135,38 @@ export default function SettingsScreen() {
     ...typography.tiny,
     color: colors.accent,
   },
+  apiKeyCard: {
+    gap: spacing.sm,
+  },
+  apiKeyInput: {
+    backgroundColor: colors.surfaceElevated,
+    borderRadius: radii.sm,
+    padding: spacing.md,
+    color: colors.textPrimary,
+    ...typography.body,
+  },
+  apiKeyStatus: {
+    ...typography.tiny,
+    color: colors.success,
+  },
 }),
     [colors]
   );
   const db = useSQLiteContext();
   const { settings, setUnits, setTheme, setAccentColor, setWaterUnit, setNutritionGoals } = useSettings();
   const [busy, setBusy] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState("");
+  const [hasApiKey, setHasApiKey] = useState(false);
+
+  useEffect(() => {
+    getClaudeKey().then((key) => setHasApiKey(!!key));
+  }, []);
+
+  const commitApiKey = async () => {
+    await setClaudeKey(apiKeyInput);
+    setHasApiKey(!!apiKeyInput.trim());
+    setApiKeyInput("");
+  };
   const [goals, setGoals] = useState({
     proteinGoalG: String(settings.proteinGoalG),
     carbGoalG: String(settings.carbGoalG),
@@ -328,6 +355,28 @@ export default function SettingsScreen() {
         </View>
       </Card>
 
+      <SectionHeader title="AI Photo Logging" />
+      <Card style={styles.apiKeyCard}>
+        <Text style={styles.dataDescription}>
+          Add a Claude (Anthropic) API key to enable "Take Photo" on the Nutrition
+          tab, which estimates a meal's foods and macros from a picture. This is
+          the only feature in the app that uses the internet or a third party —
+          everything else stays fully offline.
+        </Text>
+        <TextInput
+          style={styles.apiKeyInput}
+          placeholder={hasApiKey ? "Key saved — enter a new one to replace it" : "sk-ant-..."}
+          placeholderTextColor={colors.textTertiary}
+          value={apiKeyInput}
+          onChangeText={setApiKeyInput}
+          onEndEditing={commitApiKey}
+          secureTextEntry
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+        {hasApiKey ? <Text style={styles.apiKeyStatus}>✓ API key saved</Text> : null}
+      </Card>
+
       <SectionHeader title="Data" />
       <Card style={styles.dataCard}>
         <Text style={styles.dataDescription}>
@@ -342,8 +391,9 @@ export default function SettingsScreen() {
       <Card style={styles.aboutCard}>
         <Text style={styles.aboutTitle}>Gym Tracker</Text>
         <Text style={styles.aboutText}>
-          A personal, fully offline workout tracker. All data is stored locally on
-          this device in SQLite — nothing is ever sent to a server.
+          A personal fitness tracker. All data is stored locally on this device
+          in SQLite. Nothing is sent anywhere unless you use AI photo logging,
+          which sends just that one photo to Claude to estimate macros.
         </Text>
         <Text style={styles.aboutVersion}>Version 1.0.0</Text>
       </Card>

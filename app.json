@@ -25,7 +25,15 @@
       ]
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Gym Tracker to access your photos to log a meal from a picture.",
+          "cameraPermission": "Allow Gym Tracker to use your camera to snap a photo of your meal for automatic macro estimation."
+        }
+      ]
     ],
     "extra": {
       "router": {

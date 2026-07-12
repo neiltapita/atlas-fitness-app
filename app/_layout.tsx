@@ -74,6 +74,10 @@ function RootStack() {
           options={{ presentation: "modal", title: "New Meal" }}
         />
         <Stack.Screen name="nutrition/meals/[id]" options={{ title: "Edit Meal" }} />
+        <Stack.Screen
+          name="nutrition/photo"
+          options={{ presentation: "modal", title: "Log from Photo" }}
+        />
       </Stack>
     </>
   );

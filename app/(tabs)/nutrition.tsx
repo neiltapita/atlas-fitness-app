@@ -317,6 +317,11 @@ export default function NutritionScreen() {
                 style={styles.actionButton}
               />
             </View>
+            <PrimaryButton
+              title="📷 Log from Photo"
+              variant="ghost"
+              onPress={() => router.push({ pathname: "/nutrition/photo", params: { date } })}
+            />
 
             <SectionHeader title="Today's Log" />
           </View>
