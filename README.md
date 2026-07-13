@@ -19,6 +19,15 @@ backend, no login, and no network calls — everything lives on your phone.
 - **Progress** — weight progression and volume progression charts, exercise history
   by exercise, bodyweight tracking, and a "best lift" table for every exercise
   (including a Bench/Squat/Deadlift big-three callout).
+- **Nutrition** — log food from a searchable library or your own custom entries,
+  save reusable meals, and track daily calories/macros/water against goals you set.
+- **AI photo food logging** — snap or pick a photo of a meal and get an editable
+  per-item calorie/macro breakdown before logging it. This feature calls the Claude
+  API directly from your device and **requires your own Anthropic API key**, entered
+  in Settings → AI Photo Logging and stored locally in the device's secure storage.
+  It's the only feature in the app that makes a network call; everything else is
+  fully offline. You'll need your own Anthropic account with API credits — see
+  [console.anthropic.com](https://console.anthropic.com) to generate a key.
 - **Settings** — switch units (lb/kg), set your default rest timer, and export/import
   all of your data as a single JSON file.
 
@@ -36,6 +45,9 @@ backend, no login, and no network calls — everything lives on your phone.
 - Node.js 18+ and npm installed on your computer
 - The **Expo Go** app installed on your iPhone (free, from the App Store)
 - Your computer and iPhone on the same Wi-Fi network
+- **Optional**: an [Anthropic API key](https://console.anthropic.com) if you want to
+  use AI photo food logging. Everything else in the app works fully offline with no
+  key at all.
 
 ## Install & run
 
