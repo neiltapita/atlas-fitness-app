@@ -1,7 +1,8 @@
 # Atlas
 
-A personal, offline-first fitness platform for iPhone — a workout tracker (Strong-style)
-and a nutrition/macro tracker (Cal AI-style) in one app. Built solo with Expo, React
+A personal, offline-first fitness platform for iPhone — a full workout tracker with
+per-set weight/reps/RPE logging and reusable templates, plus a nutrition and macro
+tracker with AI photo food recognition, in one app. Built solo with Expo, React
 Native, and TypeScript, backed by a single local SQLite database. There is no backend,
 no login, and no account system — everything lives on your phone. The only feature
 that ever touches the network is AI photo food logging, which is opt-in and uses your
