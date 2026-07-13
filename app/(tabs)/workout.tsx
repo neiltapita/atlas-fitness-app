@@ -2,7 +2,6 @@ import React, { useCallback, useState, useMemo } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
-import { Card } from "@/components/Card";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { SectionHeader } from "@/components/SectionHeader";
 import { EmptyState } from "@/components/EmptyState";
@@ -34,38 +33,52 @@ export default function WorkoutScreen() {
   },
   content: {
     padding: spacing.lg,
-    gap: spacing.md,
-  },
-  secondaryButton: {
-    marginTop: 0,
+    gap: spacing.sm,
   },
   activeBanner: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-  },
-  templatesSection: {
-    gap: spacing.sm,
-    marginBottom: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: spacing.md,
+    marginBottom: spacing.sm,
   },
   activeText: {
     ...typography.headline,
     color: colors.textPrimary,
   },
+  createLink: {
+    alignSelf: "center",
+    paddingVertical: spacing.sm,
+  },
+  createLinkText: {
+    ...typography.body,
+    color: colors.accent,
+    textDecorationLine: "underline",
+  },
+  templatesSection: {
+    gap: 0,
+    marginBottom: spacing.md,
+  },
   listContent: {
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.xxl,
-    gap: spacing.sm,
   },
-  templateCard: {
+  row: {
+    paddingVertical: spacing.md,
     gap: spacing.xs,
   },
-  templateName: {
+  rowDivider: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  rowName: {
     ...typography.body,
     color: colors.textPrimary,
     fontWeight: "700",
   },
-  templateMeta: {
+  rowMeta: {
     ...typography.caption,
     color: colors.textSecondary,
   },
@@ -129,24 +142,22 @@ export default function WorkoutScreen() {
 
       <View style={styles.content}>
         {activeWorkoutId != null ? (
-          <Card style={styles.activeBanner}>
+          <View style={styles.activeBanner}>
             <Text style={styles.activeText}>Workout in progress</Text>
             <PrimaryButton
               title="Resume"
               size="medium"
+              variant="outline"
               onPress={() => router.push("/workout/active")}
             />
-          </Card>
+          </View>
         ) : (
-          <PrimaryButton title="Start Empty Workout" onPress={startEmpty} />
+          <PrimaryButton title="Start Empty Workout" variant="outline" onPress={startEmpty} />
         )}
 
-        <PrimaryButton
-          title="Create Named Workout"
-          variant="secondary"
-          onPress={() => router.push("/workout/create")}
-          style={styles.secondaryButton}
-        />
+        <Pressable style={styles.createLink} onPress={() => router.push("/workout/create")}>
+          <Text style={styles.createLinkText}>Create Named Workout</Text>
+        </Pressable>
       </View>
 
       <FlatList
@@ -162,18 +173,18 @@ export default function WorkoutScreen() {
             />
             {templates.length === 0 ? (
               <Pressable onPress={() => router.push("/templates/create")}>
-                <Card style={styles.templateCard}>
-                  <Text style={styles.templateName}>+ Create your first template</Text>
-                  <Text style={styles.templateMeta}>e.g. Push, Pull, Legs</Text>
-                </Card>
+                <View style={styles.row}>
+                  <Text style={styles.rowName}>+ Create your first template</Text>
+                  <Text style={styles.rowMeta}>e.g. Push, Pull, Legs</Text>
+                </View>
               </Pressable>
             ) : (
-              templates.map((t) => (
+              templates.map((t, index) => (
                 <Pressable key={t.id} onPress={() => openTemplate(t.id)}>
-                  <Card style={styles.templateCard}>
-                    <Text style={styles.templateName}>{t.name}</Text>
-                    <Text style={styles.templateMeta}>Tap to view</Text>
-                  </Card>
+                  <View style={[styles.row, index > 0 && styles.rowDivider]}>
+                    <Text style={styles.rowName}>{t.name}</Text>
+                    <Text style={styles.rowMeta}>Tap to view</Text>
+                  </View>
                 </Pressable>
               ))
             )}
@@ -184,18 +195,17 @@ export default function WorkoutScreen() {
           <EmptyState
             title="No previous workouts"
             subtitle="Finish your first workout to see it here for quick repeats."
-            icon="🔁"
           />
         }
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <Pressable onPress={() => repeatPreviousWorkout(item.id)}>
-            <Card style={styles.templateCard}>
-              <Text style={styles.templateName}>{item.name}</Text>
-              <Text style={styles.templateMeta}>
+            <View style={[styles.row, index > 0 && styles.rowDivider]}>
+              <Text style={styles.rowName}>{item.name}</Text>
+              <Text style={styles.rowMeta}>
                 {formatFriendlyDate(item.date)} · {item.exerciseCount} exercises ·{" "}
                 {formatWeight(item.totalVolume, settings.units)}
               </Text>
-            </Card>
+            </View>
           </Pressable>
         )}
       />

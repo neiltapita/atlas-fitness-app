@@ -2,7 +2,6 @@ import React, { useCallback, useMemo, useState } from "react";
 import { Alert, FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
-import { Card } from "@/components/Card";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { SectionHeader } from "@/components/SectionHeader";
 import { EmptyState } from "@/components/EmptyState";
@@ -73,7 +72,7 @@ export default function NutritionScreen() {
     padding: spacing.lg,
     gap: spacing.md,
   },
-  summaryCard: {
+  summarySection: {
     gap: spacing.md,
   },
   calorieRow: {
@@ -82,12 +81,12 @@ export default function NutritionScreen() {
     alignItems: "flex-end",
   },
   calorieValue: {
-    ...typography.largeTitle,
-    color: colors.accent,
+    ...typography.heroNumber,
+    color: colors.textPrimary,
   },
   calorieLabel: {
-    ...typography.caption,
-    color: colors.textSecondary,
+    ...typography.eyebrow,
+    color: colors.textTertiary,
   },
   remainingText: {
     ...typography.body,
@@ -111,19 +110,20 @@ export default function NutritionScreen() {
     color: colors.textSecondary,
   },
   barTrack: {
-    height: 8,
-    borderRadius: radii.pill,
-    backgroundColor: colors.surfaceElevated,
+    height: 2,
+    backgroundColor: colors.border,
     overflow: "hidden",
   },
   barFill: {
-    height: 8,
-    borderRadius: radii.pill,
+    height: 2,
   },
-  waterCard: {
+  waterSection: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: spacing.md,
   },
   waterText: {
     ...typography.headline,
@@ -149,12 +149,23 @@ export default function NutritionScreen() {
     ...typography.headline,
     color: colors.accent,
   },
-  actionsRow: {
-    flexDirection: "row",
-    gap: spacing.sm,
+  logFoodButton: {
+    marginTop: spacing.xs,
   },
-  actionButton: {
-    flex: 1,
+  secondaryActionsRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: spacing.md,
+  },
+  secondaryActionText: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    textDecorationLine: "underline",
+  },
+  entrySection: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: spacing.sm,
   },
   entryRow: {
     flexDirection: "row",
@@ -252,7 +263,7 @@ export default function NutritionScreen() {
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={
           <View style={{ gap: spacing.md }}>
-            <Card style={styles.summaryCard}>
+            <View style={styles.summarySection}>
               <View style={styles.calorieRow}>
                 <View>
                   <Text style={styles.calorieValue}>{Math.round(summary.calories)}</Text>
@@ -268,7 +279,6 @@ export default function NutritionScreen() {
                 value={summary.protein}
                 goal={settings.proteinGoalG}
                 color={colors.accent}
-                trackColor={colors.surfaceElevated}
                 styles={styles}
               />
               <MacroBar
@@ -276,7 +286,6 @@ export default function NutritionScreen() {
                 value={summary.carbs}
                 goal={settings.carbGoalG}
                 color={colors.success}
-                trackColor={colors.surfaceElevated}
                 styles={styles}
               />
               <MacroBar
@@ -284,53 +293,48 @@ export default function NutritionScreen() {
                 value={summary.fat}
                 goal={settings.fatGoalG}
                 color={colors.warning}
-                trackColor={colors.surfaceElevated}
                 styles={styles}
               />
-            </Card>
 
-            <Card style={styles.waterCard}>
-              <View>
-                <Text style={styles.waterText}>{formatWater(summary.waterMl, settings.waterUnit)}</Text>
-                <Text style={styles.waterSub}>of {formatWater(settings.waterGoalMl, settings.waterUnit)}</Text>
+              <View style={styles.waterSection}>
+                <View>
+                  <Text style={styles.waterText}>{formatWater(summary.waterMl, settings.waterUnit)}</Text>
+                  <Text style={styles.waterSub}>of {formatWater(settings.waterGoalMl, settings.waterUnit)}</Text>
+                </View>
+                <View style={styles.waterButtons}>
+                  <Pressable style={styles.waterButton} onPress={() => handleWater(-250)} hitSlop={8}>
+                    <Text style={styles.waterButtonText}>−</Text>
+                  </Pressable>
+                  <Pressable style={styles.waterButton} onPress={() => handleWater(250)} hitSlop={8}>
+                    <Text style={styles.waterButtonText}>+</Text>
+                  </Pressable>
+                </View>
               </View>
-              <View style={styles.waterButtons}>
-                <Pressable style={styles.waterButton} onPress={() => handleWater(-250)} hitSlop={8}>
-                  <Text style={styles.waterButtonText}>−</Text>
-                </Pressable>
-                <Pressable style={styles.waterButton} onPress={() => handleWater(250)} hitSlop={8}>
-                  <Text style={styles.waterButtonText}>+</Text>
-                </Pressable>
-              </View>
-            </Card>
-
-            <View style={styles.actionsRow}>
-              <PrimaryButton
-                title="+ Log Food"
-                onPress={() => router.push({ pathname: "/nutrition/log", params: { date } })}
-                style={styles.actionButton}
-              />
-              <PrimaryButton
-                title="My Meals"
-                variant="secondary"
-                onPress={() => router.push("/nutrition/meals")}
-                style={styles.actionButton}
-              />
             </View>
+
             <PrimaryButton
-              title="📷 Log from Photo"
-              variant="ghost"
-              onPress={() => router.push({ pathname: "/nutrition/photo", params: { date } })}
+              title="+ Log Food"
+              variant="outline"
+              onPress={() => router.push({ pathname: "/nutrition/log", params: { date } })}
+              style={styles.logFoodButton}
             />
+            <View style={styles.secondaryActionsRow}>
+              <Pressable onPress={() => router.push("/nutrition/meals")}>
+                <Text style={styles.secondaryActionText}>My Meals</Text>
+              </Pressable>
+              <Pressable onPress={() => router.push({ pathname: "/nutrition/photo", params: { date } })}>
+                <Text style={styles.secondaryActionText}>Log from Photo</Text>
+              </Pressable>
+            </View>
 
             <SectionHeader title="Today's Log" />
           </View>
         }
         ListEmptyComponent={
-          <EmptyState title="Nothing logged yet" subtitle="Tap + Log Food to add your first item." icon="🍽️" />
+          <EmptyState title="Nothing logged yet" subtitle="Tap + Log Food to add your first item." />
         }
         renderItem={({ item }) => (
-          <View>
+          <View style={styles.entrySection}>
             <Text style={styles.macroName}>{MEAL_TYPE_LABELS[item.type]}</Text>
             {item.entries.map((entry) => (
               <Pressable key={entry.id} onLongPress={() => handleDeleteEntry(entry)} style={styles.entryRow}>
@@ -363,14 +367,12 @@ function MacroBar({
   value,
   goal,
   color,
-  trackColor,
   styles,
 }: {
   name: string;
   value: number;
   goal: number;
   color: string;
-  trackColor: string;
   styles: { macroRow: object; macroHeaderRow: object; macroName: object; macroValue: object; barTrack: object; barFill: object };
 }) {
   const pct = goal > 0 ? Math.min(1, value / goal) : 0;
@@ -382,7 +384,7 @@ function MacroBar({
           {Math.round(value)}g / {goal}g
         </Text>
       </View>
-      <View style={[styles.barTrack, { backgroundColor: trackColor }]}>
+      <View style={styles.barTrack}>
         <View style={[styles.barFill, { width: `${pct * 100}%`, backgroundColor: color }]} />
       </View>
     </View>

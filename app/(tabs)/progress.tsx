@@ -12,6 +12,7 @@ import { useFocusEffect } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { Card } from "@/components/Card";
 import { SectionHeader } from "@/components/SectionHeader";
+import { StatTile } from "@/components/StatTile";
 import { LineChartCard } from "@/components/LineChartCard";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { EmptyState } from "@/components/EmptyState";
@@ -43,7 +44,7 @@ export default function ProgressScreen() {
   },
   content: {
     padding: spacing.lg,
-    gap: spacing.md,
+    gap: spacing.lg,
   },
   title: {
     ...typography.largeTitle,
@@ -51,47 +52,25 @@ export default function ProgressScreen() {
   },
   bigThreeRow: {
     flexDirection: "row",
-    gap: spacing.sm,
   },
-  bigThreeCard: {
-    flex: 1,
-    alignItems: "center",
-    gap: 2,
-  },
-  bigThreeLabel: {
-    ...typography.tiny,
-    color: colors.textSecondary,
-  },
-  bigThreeValue: {
-    ...typography.title,
-    color: colors.accent,
-  },
-  bigThreeSub: {
-    ...typography.tiny,
-    color: colors.textTertiary,
-  },
-  chipRow: {
+  tabRow: {
     marginBottom: spacing.sm,
   },
-  chip: {
+  tab: {
     paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: radii.pill,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginRight: spacing.sm,
+    marginRight: spacing.lg,
+    borderBottomWidth: 2,
+    borderBottomColor: "transparent",
   },
-  chipActive: {
-    backgroundColor: colors.accent,
-    borderColor: colors.accent,
+  tabActive: {
+    borderBottomColor: colors.accent,
   },
-  chipText: {
+  tabText: {
     ...typography.caption,
     color: colors.textSecondary,
   },
-  chipTextActive: {
-    color: "#1A0E06",
+  tabTextActive: {
+    color: colors.accent,
     fontWeight: "700",
   },
   liftRow: {
@@ -100,8 +79,8 @@ export default function ProgressScreen() {
     paddingVertical: spacing.sm,
   },
   liftRowBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
   liftName: {
     ...typography.body,
@@ -210,101 +189,104 @@ export default function ProgressScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>Progress</Text>
 
-      <SectionHeader title="Best Lifts" />
-      <View style={styles.bigThreeRow}>
-        {BIG_THREE.map((name) => (
-          <Card key={name} style={styles.bigThreeCard}>
-            <Text style={styles.bigThreeLabel}>{name}</Text>
-            <Text style={styles.bigThreeValue}>
-              {bigThree[name] ? formatWeight(bigThree[name]!.weight, settings.units) : "—"}
-            </Text>
-            {bigThree[name] ? (
-              <Text style={styles.bigThreeSub}>× {bigThree[name]!.reps} reps</Text>
-            ) : (
-              <Text style={styles.bigThreeSub}>Not logged</Text>
-            )}
-          </Card>
-        ))}
+      <View>
+        <SectionHeader title="Best Lifts" />
+        <View style={styles.bigThreeRow}>
+          {BIG_THREE.map((name, index) => (
+            <StatTile
+              key={name}
+              label={name}
+              value={bigThree[name] ? formatWeight(bigThree[name]!.weight, settings.units) : "—"}
+              sub={bigThree[name] ? `× ${bigThree[name]!.reps} reps` : "Not logged"}
+              dividerLeft={index > 0}
+            />
+          ))}
+        </View>
       </View>
 
-      <SectionHeader title="Exercise History" />
-      {bestLifts.length > 0 ? (
-        <>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
-            {bestLifts.map((lift) => (
-              <Pressable
-                key={lift.exerciseId}
-                onPress={() => setSelectedExercise(lift.exerciseName ?? null)}
-                style={[
-                  styles.chip,
-                  selectedExercise === lift.exerciseName && styles.chipActive,
-                ]}
-              >
-                <Text
+      <View>
+        <SectionHeader title="Exercise History" />
+        {bestLifts.length > 0 ? (
+          <>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabRow}>
+              {bestLifts.map((lift) => (
+                <Pressable
+                  key={lift.exerciseId}
+                  onPress={() => setSelectedExercise(lift.exerciseName ?? null)}
                   style={[
-                    styles.chipText,
-                    selectedExercise === lift.exerciseName && styles.chipTextActive,
+                    styles.tab,
+                    selectedExercise === lift.exerciseName && styles.tabActive,
                   ]}
                 >
-                  {lift.exerciseName}
-                </Text>
-              </Pressable>
-            ))}
-          </ScrollView>
+                  <Text
+                    style={[
+                      styles.tabText,
+                      selectedExercise === lift.exerciseName && styles.tabTextActive,
+                    ]}
+                  >
+                    {lift.exerciseName}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
 
-          <LineChartCard
-            title={`${selectedExercise ?? ""} · Weight Progression`}
-            labels={exerciseHistory.map((h) => shortDate(h.date))}
-            values={exerciseHistory.map((h) => h.maxWeight)}
-            suffix={settings.units}
-          />
-        </>
-      ) : (
-        <Card>
-          <EmptyState title="No exercise history yet" subtitle="Finish workouts to build this chart." icon="📊" />
-        </Card>
-      )}
+            <LineChartCard
+              title={`${selectedExercise ?? ""} · Weight Progression`}
+              labels={exerciseHistory.map((h) => shortDate(h.date))}
+              values={exerciseHistory.map((h) => h.maxWeight)}
+              suffix={settings.units}
+            />
+          </>
+        ) : (
+          <Card>
+            <EmptyState title="No exercise history yet" subtitle="Finish workouts to build this chart." sparkline />
+          </Card>
+        )}
+      </View>
 
-      <SectionHeader title="Volume Progression" />
-      <LineChartCard
-        title="Total Volume Per Workout"
-        labels={volumeSeries.map((v) => shortDate(v.date))}
-        values={volumeSeries.map((v) => v.volume)}
-        suffix={settings.units}
-      />
+      <View>
+        <SectionHeader title="Volume Progression" />
+        <LineChartCard
+          title="Total Volume Per Workout"
+          labels={volumeSeries.map((v) => shortDate(v.date))}
+          values={volumeSeries.map((v) => v.volume)}
+          suffix={settings.units}
+          lineColor={colors.textTertiary}
+        />
+      </View>
 
-      <SectionHeader
-        title="Bodyweight"
-        actionLabel="+ Log weight"
-        onAction={() => setBwModalVisible(true)}
-      />
-      <LineChartCard
-        title="Bodyweight Over Time"
-        labels={bodyweightEntries.map((e) => shortDate(e.date))}
-        values={bodyweightEntries.map((e) => e.weight)}
-        suffix={settings.units}
-      />
+      <View>
+        <SectionHeader
+          title="Bodyweight"
+          actionLabel="+ Log weight"
+          onAction={() => setBwModalVisible(true)}
+        />
+        <LineChartCard
+          title="Bodyweight Over Time"
+          labels={bodyweightEntries.map((e) => shortDate(e.date))}
+          values={bodyweightEntries.map((e) => e.weight)}
+          suffix={settings.units}
+        />
+      </View>
 
-      <SectionHeader title="Best Lift by Exercise" />
-      {bestLifts.length > 0 ? (
-        <Card>
-          {bestLifts.map((lift, index) => (
+      <View>
+        <SectionHeader title="Best Lift by Exercise" />
+        {bestLifts.length > 0 ? (
+          bestLifts.map((lift, index) => (
             <View
               key={lift.exerciseId}
-              style={[styles.liftRow, index < bestLifts.length - 1 && styles.liftRowBorder]}
+              style={[styles.liftRow, index > 0 && styles.liftRowBorder]}
             >
               <Text style={styles.liftName}>{lift.exerciseName}</Text>
               <Text style={styles.liftValue}>
                 {formatWeight(lift.weight, settings.units)} × {lift.reps}
               </Text>
             </View>
-          ))}
-        </Card>
-      ) : (
-        <Card>
-          <EmptyState title="No records yet" icon="🏆" />
-        </Card>
-      )}
+          ))
+        ) : (
+          <EmptyState title="No records yet" />
+        )}
+      </View>
 
       <View style={{ height: spacing.xxl }} />
 

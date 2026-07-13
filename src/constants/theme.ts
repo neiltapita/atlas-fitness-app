@@ -28,7 +28,7 @@ export const ACCENT_PRESETS = [
   "#38C6C6", // teal
 ];
 
-function hexToRgb(hex: string): [number, number, number] {
+export function hexToRgb(hex: string): [number, number, number] {
   const clean = hex.replace("#", "");
   const bigint = parseInt(clean, 16);
   return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
@@ -106,12 +106,16 @@ export const radii = {
 };
 
 export const typography = {
+  heroNumber: { fontSize: 44, fontWeight: "800" as const, letterSpacing: -1 },
   largeTitle: { fontSize: 32, fontWeight: "800" as const },
   title: { fontSize: 22, fontWeight: "700" as const },
   headline: { fontSize: 17, fontWeight: "700" as const },
   body: { fontSize: 15, fontWeight: "500" as const },
   caption: { fontSize: 13, fontWeight: "500" as const },
   tiny: { fontSize: 11, fontWeight: "600" as const },
+  // Section-label micro style for Direction B: uppercase, letter-spaced,
+  // tertiary color, used in place of a headline title above list sections.
+  eyebrow: { fontSize: 11, fontWeight: "700" as const, letterSpacing: 1, textTransform: "uppercase" as const },
 };
 
 export const muscleGroupColors: Record<string, string> = {

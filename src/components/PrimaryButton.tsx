@@ -20,7 +20,7 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 interface PrimaryButtonProps {
   title: string;
   onPress: () => void;
-  variant?: "primary" | "secondary" | "danger" | "ghost";
+  variant?: "primary" | "secondary" | "danger" | "ghost" | "outline";
   disabled?: boolean;
   loading?: boolean;
   style?: ViewStyle;
@@ -46,6 +46,10 @@ export function PrimaryButton({
       },
       danger: { container: { backgroundColor: colors.danger }, textColor: "#FFFFFF" },
       ghost: { container: { backgroundColor: "transparent" }, textColor: colors.accent },
+      outline: {
+        container: { backgroundColor: "transparent", borderWidth: 1, borderColor: colors.accent },
+        textColor: colors.accent,
+      },
     }),
     [colors]
   );

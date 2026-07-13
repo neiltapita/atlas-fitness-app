@@ -76,9 +76,6 @@ export default function HistoryScreen() {
     alignItems: "center",
     justifyContent: "center",
   },
-  dayCircleSelected: {
-    backgroundColor: colors.accent,
-  },
   dayCircleToday: {
     borderWidth: 1,
     borderColor: colors.accent,
@@ -88,25 +85,29 @@ export default function HistoryScreen() {
     color: colors.textPrimary,
   },
   dayTextSelected: {
-    color: "#1A0E06",
+    color: colors.accent,
     fontWeight: "700",
   },
-  dot: {
+  underline: {
     position: "absolute",
-    bottom: 2,
-    width: 4,
-    height: 4,
-    borderRadius: radii.pill,
-    backgroundColor: colors.success,
+    bottom: 3,
+    width: 14,
+    height: 2,
+    borderRadius: 1,
+    backgroundColor: colors.accent,
   },
   listContent: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
     paddingBottom: spacing.xxl,
-    gap: spacing.sm,
   },
-  workoutCard: {
+  workoutRow: {
+    paddingVertical: spacing.md,
     gap: spacing.xs,
+  },
+  workoutRowDivider: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
   workoutName: {
     ...typography.body,
@@ -217,7 +218,6 @@ export default function HistoryScreen() {
                     <View
                       style={[
                         styles.dayCircle,
-                        selected && styles.dayCircleSelected,
                         !selected && isToday(dateStr) && styles.dayCircleToday,
                       ]}
                     >
@@ -229,7 +229,7 @@ export default function HistoryScreen() {
                       >
                         {parseInt(dateStr.slice(-2), 10)}
                       </Text>
-                      {hasWorkout ? <View style={styles.dot} /> : null}
+                      {hasWorkout || selected ? <View style={styles.underline} /> : null}
                     </View>
                   ) : null}
                 </Pressable>
@@ -244,17 +244,17 @@ export default function HistoryScreen() {
         keyExtractor={(item) => String(item.id)}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
-          <EmptyState title="No workouts" subtitle="Nothing logged for this period yet." icon="🗓️" />
+          <EmptyState title="No workouts" subtitle="Nothing logged for this period yet." />
         }
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <Pressable onPress={() => router.push(`/workout/${item.id}`)}>
-            <Card style={styles.workoutCard}>
+            <View style={[styles.workoutRow, index > 0 && styles.workoutRowDivider]}>
               <Text style={styles.workoutName}>{item.name}</Text>
               <Text style={styles.workoutMeta}>
                 {item.exerciseCount} exercises · {item.setCount} sets ·{" "}
                 {formatWeight(item.totalVolume, settings.units)}
               </Text>
-            </Card>
+            </View>
           </Pressable>
         )}
       />

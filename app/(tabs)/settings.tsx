@@ -2,7 +2,6 @@ import React, { useEffect, useState, useMemo } from "react";
 import { ActionSheetIOS, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSQLiteContext } from "expo-sqlite";
-import { Card } from "@/components/Card";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { SectionHeader } from "@/components/SectionHeader";
 import { ACCENT_PRESETS, radii, spacing, typography } from "@/constants/theme";
@@ -28,33 +27,41 @@ export default function SettingsScreen() {
   },
   content: {
     padding: spacing.lg,
-    gap: spacing.md,
+    gap: spacing.lg,
   },
   title: {
     ...typography.largeTitle,
     color: colors.textPrimary,
   },
-  row: {
-    flexDirection: "row",
-    gap: spacing.sm,
-  },
-  wrapRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: spacing.sm,
-  },
-  unitButton: {
-    flex: 1,
-  },
-  dataCard: {
+  section: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: spacing.md,
     gap: spacing.md,
+  },
+  tabPairRow: {
+    flexDirection: "row",
+    gap: spacing.xl,
+  },
+  tab: {
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 2,
+    borderBottomColor: "transparent",
+  },
+  tabActive: {
+    borderBottomColor: colors.accent,
+  },
+  tabText: {
+    ...typography.body,
+    color: colors.textSecondary,
+  },
+  tabTextActive: {
+    color: colors.accent,
+    fontWeight: "700",
   },
   dataDescription: {
     ...typography.caption,
     color: colors.textSecondary,
-  },
-  aboutCard: {
-    gap: spacing.xs,
   },
   aboutTitle: {
     ...typography.headline,
@@ -89,9 +96,6 @@ export default function SettingsScreen() {
   swatchCheck: {
     color: "#FFFFFF",
     fontWeight: "800",
-  },
-  goalsCard: {
-    gap: spacing.md,
   },
   goalRow: {
     flexDirection: "row",
@@ -137,9 +141,6 @@ export default function SettingsScreen() {
     ...typography.tiny,
     color: colors.accent,
   },
-  apiKeyCard: {
-    gap: spacing.sm,
-  },
   apiKeyInput: {
     backgroundColor: colors.surfaceElevated,
     borderRadius: radii.sm,
@@ -150,9 +151,6 @@ export default function SettingsScreen() {
   apiKeyStatus: {
     ...typography.tiny,
     color: colors.success,
-  },
-  tabOrderCard: {
-    gap: spacing.xs,
   },
   tabOrderRow: {
     flexDirection: "row",
@@ -306,185 +304,205 @@ export default function SettingsScreen() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>Settings</Text>
 
-      <SectionHeader title="Appearance" />
-      <Card style={styles.row}>
-        {(["dark", "light"] as const).map((mode) => (
-          <PrimaryButton
-            key={mode}
-            title={mode === "dark" ? "Dark" : "Light"}
-            variant={settings.theme === mode ? "primary" : "secondary"}
-            size="medium"
-            onPress={() => setTheme(mode)}
-            style={styles.unitButton}
-          />
-        ))}
-      </Card>
-      <Card style={styles.swatchRow}>
-        {ACCENT_PRESETS.map((preset) => (
-          <Pressable
-            key={preset}
-            onPress={() => {
-              haptics.tap();
-              setAccentColor(preset);
-            }}
-            style={[
-              styles.swatch,
-              { backgroundColor: preset },
-              settings.accentColor === preset && styles.swatchSelected,
-            ]}
-          >
-            {settings.accentColor === preset ? <Text style={styles.swatchCheck}>✓</Text> : null}
-          </Pressable>
-        ))}
-      </Card>
-
-      <SectionHeader title="Tab Order" />
-      <Card style={styles.tabOrderCard}>
-        {tabOrder.map((key, index) => {
-          const tab = getTabConfig(key);
-          return (
-            <View key={key} style={styles.tabOrderRow}>
-              <View style={styles.tabOrderLabelRow}>
-                <Ionicons name={tab.icon} size={18} color={colors.textSecondary} />
-                <Text style={styles.tabOrderLabel}>{tab.title}</Text>
-              </View>
-              <View style={styles.tabOrderButtons}>
-                <Pressable
-                  style={[styles.tabOrderButton, index === 0 && styles.tabOrderButtonDisabled]}
-                  onPress={() => moveTab(index, -1)}
-                  disabled={index === 0}
-                  hitSlop={8}
-                >
-                  <Text style={styles.tabOrderButtonText}>↑</Text>
-                </Pressable>
-                <Pressable
-                  style={[
-                    styles.tabOrderButton,
-                    index === tabOrder.length - 1 && styles.tabOrderButtonDisabled,
-                  ]}
-                  onPress={() => moveTab(index, 1)}
-                  disabled={index === tabOrder.length - 1}
-                  hitSlop={8}
-                >
-                  <Text style={styles.tabOrderButtonText}>↓</Text>
-                </Pressable>
-              </View>
-            </View>
-          );
-        })}
-      </Card>
-
-      <SectionHeader title="Units" />
-      <Card style={styles.row}>
-        {(["lb", "kg"] as const).map((unit) => (
-          <PrimaryButton
-            key={unit}
-            title={unit.toUpperCase()}
-            variant={settings.units === unit ? "primary" : "secondary"}
-            size="medium"
-            onPress={() => setUnits(unit)}
-            style={styles.unitButton}
-          />
-        ))}
-      </Card>
-
-      <SectionHeader title="Nutrition Goals" />
-      <Card style={styles.goalsCard}>
-        <View style={styles.goalRow}>
-          <Text style={styles.goalLabel}>Protein (g)</Text>
-          <TextInput
-            style={styles.goalInput}
-            keyboardType="number-pad"
-            value={goals.proteinGoalG}
-            onChangeText={(t) => setGoals((g) => ({ ...g, proteinGoalG: t }))}
-            onEndEditing={commitGoals}
-          />
-        </View>
-        <View style={styles.goalRow}>
-          <Text style={styles.goalLabel}>Carbs (g)</Text>
-          <TextInput
-            style={styles.goalInput}
-            keyboardType="number-pad"
-            value={goals.carbGoalG}
-            onChangeText={(t) => setGoals((g) => ({ ...g, carbGoalG: t }))}
-            onEndEditing={commitGoals}
-          />
-        </View>
-        <View style={styles.goalRow}>
-          <Text style={styles.goalLabel}>Fat (g)</Text>
-          <TextInput
-            style={styles.goalInput}
-            keyboardType="number-pad"
-            value={goals.fatGoalG}
-            onChangeText={(t) => setGoals((g) => ({ ...g, fatGoalG: t }))}
-            onEndEditing={commitGoals}
-          />
-        </View>
-        <View style={styles.goalRow}>
-          <Text style={styles.goalLabel}>Daily Calories (auto)</Text>
-          <Text style={styles.computedCalorieValue}>{computedCalorieGoal}</Text>
-        </View>
-        <View style={styles.goalRow}>
-          <View style={styles.goalLabelRow}>
-            <Text style={styles.goalLabel}>Water Goal (</Text>
-            <Pressable style={styles.inlineDropdown} onPress={handleWaterUnitPress} hitSlop={8}>
-              <Text style={styles.inlineDropdownText}>{settings.waterUnit}</Text>
-              <Text style={styles.inlineDropdownCaret}>▾</Text>
-            </Pressable>
-            <Text style={styles.goalLabel}>)</Text>
+      <View>
+        <SectionHeader title="Appearance" />
+        <View style={styles.section}>
+          <View style={styles.tabPairRow}>
+            {(["dark", "light"] as const).map((mode) => (
+              <Pressable
+                key={mode}
+                onPress={() => setTheme(mode)}
+                style={[styles.tab, settings.theme === mode && styles.tabActive]}
+              >
+                <Text style={[styles.tabText, settings.theme === mode && styles.tabTextActive]}>
+                  {mode === "dark" ? "Dark" : "Light"}
+                </Text>
+              </Pressable>
+            ))}
           </View>
-          <TextInput
-            style={styles.goalInput}
-            keyboardType="decimal-pad"
-            value={goals.waterGoal}
-            onChangeText={(t) => setGoals((g) => ({ ...g, waterGoal: t }))}
-            onEndEditing={commitGoals}
-          />
+          <View style={styles.swatchRow}>
+            {ACCENT_PRESETS.map((preset) => (
+              <Pressable
+                key={preset}
+                onPress={() => {
+                  haptics.tap();
+                  setAccentColor(preset);
+                }}
+                style={[
+                  styles.swatch,
+                  { backgroundColor: preset },
+                  settings.accentColor === preset && styles.swatchSelected,
+                ]}
+              >
+                {settings.accentColor === preset ? <Text style={styles.swatchCheck}>✓</Text> : null}
+              </Pressable>
+            ))}
+          </View>
         </View>
-      </Card>
+      </View>
 
-      <SectionHeader title="AI Photo Logging" />
-      <Card style={styles.apiKeyCard}>
-        <Text style={styles.dataDescription}>
-          Add a Claude (Anthropic) API key to enable "Take Photo" on the Nutrition
-          tab, which estimates a meal's foods and macros from a picture. This is
-          the only feature in the app that uses the internet or a third party —
-          everything else stays fully offline.
-        </Text>
-        <TextInput
-          style={styles.apiKeyInput}
-          placeholder={hasApiKey ? "Key saved — enter a new one to replace it" : "sk-ant-..."}
-          placeholderTextColor={colors.textTertiary}
-          value={apiKeyInput}
-          onChangeText={setApiKeyInput}
-          onEndEditing={commitApiKey}
-          secureTextEntry
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-        {hasApiKey ? <Text style={styles.apiKeyStatus}>✓ API key saved</Text> : null}
-      </Card>
+      <View>
+        <SectionHeader title="Tab Order" />
+        <View style={styles.section}>
+          {tabOrder.map((key, index) => {
+            const tab = getTabConfig(key);
+            return (
+              <View key={key} style={styles.tabOrderRow}>
+                <View style={styles.tabOrderLabelRow}>
+                  <Ionicons name={tab.icon} size={18} color={colors.textSecondary} />
+                  <Text style={styles.tabOrderLabel}>{tab.title}</Text>
+                </View>
+                <View style={styles.tabOrderButtons}>
+                  <Pressable
+                    style={[styles.tabOrderButton, index === 0 && styles.tabOrderButtonDisabled]}
+                    onPress={() => moveTab(index, -1)}
+                    disabled={index === 0}
+                    hitSlop={8}
+                  >
+                    <Text style={styles.tabOrderButtonText}>↑</Text>
+                  </Pressable>
+                  <Pressable
+                    style={[
+                      styles.tabOrderButton,
+                      index === tabOrder.length - 1 && styles.tabOrderButtonDisabled,
+                    ]}
+                    onPress={() => moveTab(index, 1)}
+                    disabled={index === tabOrder.length - 1}
+                    hitSlop={8}
+                  >
+                    <Text style={styles.tabOrderButtonText}>↓</Text>
+                  </Pressable>
+                </View>
+              </View>
+            );
+          })}
+        </View>
+      </View>
 
-      <SectionHeader title="Data" />
-      <Card style={styles.dataCard}>
-        <Text style={styles.dataDescription}>
-          Export all of your workouts, exercises, and personal records to a JSON
-          file, or restore from a previous export.
-        </Text>
-        <PrimaryButton title="Export Data" variant="secondary" onPress={handleExport} loading={busy} />
-        <PrimaryButton title="Import Data" variant="secondary" onPress={handleImport} loading={busy} />
-      </Card>
+      <View>
+        <SectionHeader title="Units" />
+        <View style={styles.section}>
+          <View style={styles.tabPairRow}>
+            {(["lb", "kg"] as const).map((unit) => (
+              <Pressable
+                key={unit}
+                onPress={() => setUnits(unit)}
+                style={[styles.tab, settings.units === unit && styles.tabActive]}
+              >
+                <Text style={[styles.tabText, settings.units === unit && styles.tabTextActive]}>
+                  {unit.toUpperCase()}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      </View>
 
-      <SectionHeader title="About" />
-      <Card style={styles.aboutCard}>
-        <Text style={styles.aboutTitle}>Atlas</Text>
-        <Text style={styles.aboutText}>
-          A personal fitness platform. All data is stored locally on this device
-          in SQLite. Nothing is sent anywhere unless you use AI photo logging,
-          which sends just that one photo to Claude to estimate macros.
-        </Text>
-        <Text style={styles.aboutVersion}>Version 1.0.0</Text>
-      </Card>
+      <View>
+        <SectionHeader title="Nutrition Goals" />
+        <View style={styles.section}>
+          <View style={styles.goalRow}>
+            <Text style={styles.goalLabel}>Protein (g)</Text>
+            <TextInput
+              style={styles.goalInput}
+              keyboardType="number-pad"
+              value={goals.proteinGoalG}
+              onChangeText={(t) => setGoals((g) => ({ ...g, proteinGoalG: t }))}
+              onEndEditing={commitGoals}
+            />
+          </View>
+          <View style={styles.goalRow}>
+            <Text style={styles.goalLabel}>Carbs (g)</Text>
+            <TextInput
+              style={styles.goalInput}
+              keyboardType="number-pad"
+              value={goals.carbGoalG}
+              onChangeText={(t) => setGoals((g) => ({ ...g, carbGoalG: t }))}
+              onEndEditing={commitGoals}
+            />
+          </View>
+          <View style={styles.goalRow}>
+            <Text style={styles.goalLabel}>Fat (g)</Text>
+            <TextInput
+              style={styles.goalInput}
+              keyboardType="number-pad"
+              value={goals.fatGoalG}
+              onChangeText={(t) => setGoals((g) => ({ ...g, fatGoalG: t }))}
+              onEndEditing={commitGoals}
+            />
+          </View>
+          <View style={styles.goalRow}>
+            <Text style={styles.goalLabel}>Daily Calories (auto)</Text>
+            <Text style={styles.computedCalorieValue}>{computedCalorieGoal}</Text>
+          </View>
+          <View style={styles.goalRow}>
+            <View style={styles.goalLabelRow}>
+              <Text style={styles.goalLabel}>Water Goal (</Text>
+              <Pressable style={styles.inlineDropdown} onPress={handleWaterUnitPress} hitSlop={8}>
+                <Text style={styles.inlineDropdownText}>{settings.waterUnit}</Text>
+                <Text style={styles.inlineDropdownCaret}>▾</Text>
+              </Pressable>
+              <Text style={styles.goalLabel}>)</Text>
+            </View>
+            <TextInput
+              style={styles.goalInput}
+              keyboardType="decimal-pad"
+              value={goals.waterGoal}
+              onChangeText={(t) => setGoals((g) => ({ ...g, waterGoal: t }))}
+              onEndEditing={commitGoals}
+            />
+          </View>
+        </View>
+      </View>
+
+      <View>
+        <SectionHeader title="AI Photo Logging" />
+        <View style={styles.section}>
+          <Text style={styles.dataDescription}>
+            Add a Claude (Anthropic) API key to enable "Take Photo" on the Nutrition
+            tab, which estimates a meal's foods and macros from a picture. This is
+            the only feature in the app that uses the internet or a third party —
+            everything else stays fully offline.
+          </Text>
+          <TextInput
+            style={styles.apiKeyInput}
+            placeholder={hasApiKey ? "Key saved — enter a new one to replace it" : "sk-ant-..."}
+            placeholderTextColor={colors.textTertiary}
+            value={apiKeyInput}
+            onChangeText={setApiKeyInput}
+            onEndEditing={commitApiKey}
+            secureTextEntry
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          {hasApiKey ? <Text style={styles.apiKeyStatus}>✓ API key saved</Text> : null}
+        </View>
+      </View>
+
+      <View>
+        <SectionHeader title="Data" />
+        <View style={styles.section}>
+          <Text style={styles.dataDescription}>
+            Export all of your workouts, exercises, and personal records to a JSON
+            file, or restore from a previous export.
+          </Text>
+          <PrimaryButton title="Export Data" variant="secondary" onPress={handleExport} loading={busy} />
+          <PrimaryButton title="Import Data" variant="secondary" onPress={handleImport} loading={busy} />
+        </View>
+      </View>
+
+      <View>
+        <SectionHeader title="About" />
+        <View style={styles.section}>
+          <Text style={styles.aboutTitle}>Atlas</Text>
+          <Text style={styles.aboutText}>
+            A personal fitness platform. All data is stored locally on this device
+            in SQLite. Nothing is sent anywhere unless you use AI photo logging,
+            which sends just that one photo to Claude to estimate macros.
+          </Text>
+          <Text style={styles.aboutVersion}>Version 1.0.0</Text>
+        </View>
+      </View>
 
       <View style={{ height: spacing.xxl }} />
     </ScrollView>

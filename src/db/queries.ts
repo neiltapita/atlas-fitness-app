@@ -479,6 +479,41 @@ export async function getCurrentStreak(db: SQLiteDatabase): Promise<number> {
   return streak;
 }
 
+/** Consecutive weeks (Sunday-start) with at least one finished workout. Unlike
+ * a day-streak, a planned rest day doesn't break it — only a whole week with
+ * no training does. */
+export async function getCurrentWeekStreak(db: SQLiteDatabase): Promise<number> {
+  const rows = await db.getAllAsync<{ date: string }>(
+    `SELECT DISTINCT date FROM workouts WHERE finished_at IS NOT NULL ORDER BY date DESC;`
+  );
+  if (rows.length === 0) return 0;
+
+  const weekStart = (d: Date): string => {
+    const copy = new Date(d);
+    copy.setHours(0, 0, 0, 0);
+    copy.setDate(copy.getDate() - copy.getDay());
+    return copy.toISOString().slice(0, 10);
+  };
+
+  const weekSet = new Set(rows.map((r) => weekStart(new Date(`${r.date}T00:00:00`))));
+
+  const cursor = new Date();
+  cursor.setHours(0, 0, 0, 0);
+
+  // If the current week has no session yet, start counting from last week —
+  // an in-progress week shouldn't zero out a streak still in motion.
+  if (!weekSet.has(weekStart(cursor))) {
+    cursor.setDate(cursor.getDate() - 7);
+  }
+
+  let streak = 0;
+  while (weekSet.has(weekStart(cursor))) {
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 7);
+  }
+  return streak;
+}
+
 export async function getTodaysWorkout(
   db: SQLiteDatabase
 ): Promise<WorkoutSummary | null> {

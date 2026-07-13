@@ -21,8 +21,8 @@ export function SectionHeader({ title, actionLabel, onAction }: SectionHeaderPro
     marginBottom: spacing.md,
   },
   title: {
-    ...typography.headline,
-    color: colors.textPrimary,
+    ...typography.eyebrow,
+    color: colors.textTertiary,
   },
   action: {
     ...typography.caption,

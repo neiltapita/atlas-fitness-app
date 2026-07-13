@@ -2,7 +2,6 @@ import React, { useCallback, useState, useMemo } from "react";
 import { RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
-import { Card } from "@/components/Card";
 import { StatTile } from "@/components/StatTile";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -15,7 +14,7 @@ import {
   getTodaysWorkout,
   getLastFinishedWorkout,
   getWeeklyWorkoutCount,
-  getCurrentStreak,
+  getCurrentWeekStreak,
   getRecentPersonalRecords,
 } from "@/db/queries";
 import { WorkoutSummary, PersonalRecord } from "@/types";
@@ -33,7 +32,7 @@ export default function HomeScreen() {
   },
   content: {
     padding: spacing.lg,
-    gap: spacing.md,
+    gap: spacing.lg,
   },
   greeting: {
     ...typography.largeTitle,
@@ -45,10 +44,12 @@ export default function HomeScreen() {
   },
   statsRow: {
     flexDirection: "row",
-    gap: spacing.md,
-  },
-  card: {
     marginBottom: spacing.sm,
+  },
+  section: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: spacing.md,
     gap: spacing.xs,
   },
   workoutName: {
@@ -94,7 +95,7 @@ export default function HomeScreen() {
   const [todaysWorkout, setTodaysWorkout] = useState<WorkoutSummary | null>(null);
   const [lastWorkout, setLastWorkout] = useState<WorkoutSummary | null>(null);
   const [weeklyCount, setWeeklyCount] = useState(0);
-  const [streak, setStreak] = useState(0);
+  const [weekStreak, setWeekStreak] = useState(0);
   const [recentPRs, setRecentPRs] = useState<PersonalRecord[]>([]);
 
   const loadData = useCallback(async () => {
@@ -102,13 +103,13 @@ export default function HomeScreen() {
       getTodaysWorkout(db),
       getLastFinishedWorkout(db),
       getWeeklyWorkoutCount(db),
-      getCurrentStreak(db),
+      getCurrentWeekStreak(db),
       getRecentPersonalRecords(db, 5),
     ]);
     setTodaysWorkout(today);
     setLastWorkout(last);
     setWeeklyCount(weekly);
-    setStreak(streakVal);
+    setWeekStreak(streakVal);
     setRecentPRs(prs);
     await refreshActiveWorkout();
   }, [db, refreshActiveWorkout]);
@@ -148,59 +149,57 @@ export default function HomeScreen() {
       <PrimaryButton
         title={activeWorkoutId != null ? "Resume Workout" : "Quick Start Workout"}
         onPress={handleQuickStart}
+        variant="outline"
         style={styles.quickStart}
       />
 
       <View style={styles.statsRow}>
-        <StatTile label="This week" value={`${weeklyCount}`} sub="workouts" />
-        <StatTile label="Streak" value={`${streak}`} sub={streak === 1 ? "day" : "days"} accentColor={colors.success} />
+        <StatTile label="This week" value={`${weeklyCount}`} sub="workouts" dividerLeft={false} />
+        <StatTile label="Week Streak" value={`${weekStreak}`} sub={weekStreak === 1 ? "week" : "weeks"} accentColor={colors.success} />
       </View>
 
       <SectionHeader title="Today's Workout" />
-      {todaysWorkout ? (
-        <Card style={styles.card}>
-          <Text style={styles.workoutName}>{todaysWorkout.name}</Text>
-          <Text style={styles.workoutMeta}>
-            {todaysWorkout.exerciseCount} exercises · {todaysWorkout.setCount} sets ·{" "}
-            {formatWeight(todaysWorkout.totalVolume, settings.units)} volume
-          </Text>
-          {!todaysWorkout.finishedAt ? (
-            <Text style={styles.inProgressTag}>In progress</Text>
-          ) : null}
-        </Card>
-      ) : (
-        <Card style={styles.card}>
-          <EmptyState title="No workout yet today" subtitle="Tap Quick Start to begin one." icon="🏋️" />
-        </Card>
-      )}
+      <View style={styles.section}>
+        {todaysWorkout ? (
+          <>
+            <Text style={styles.workoutName}>{todaysWorkout.name}</Text>
+            <Text style={styles.workoutMeta}>
+              {todaysWorkout.exerciseCount} exercises · {todaysWorkout.setCount} sets ·{" "}
+              {formatWeight(todaysWorkout.totalVolume, settings.units)} volume
+            </Text>
+            {!todaysWorkout.finishedAt ? (
+              <Text style={styles.inProgressTag}>In progress</Text>
+            ) : null}
+          </>
+        ) : (
+          <EmptyState title="No workout yet today" subtitle="Tap Quick Start to begin one." />
+        )}
+      </View>
 
       <SectionHeader title="Last Workout" />
-      {lastWorkout ? (
-        <Card
-          style={styles.card}
-          onTouchEnd={() => router.push(`/workout/${lastWorkout.id}`)}
-        >
-          <Text style={styles.workoutName}>{lastWorkout.name}</Text>
-          <Text style={styles.workoutMeta}>{formatFriendlyDate(lastWorkout.date)}</Text>
-          <Text style={styles.workoutMeta}>
-            {lastWorkout.exerciseCount} exercises · {lastWorkout.setCount} sets ·{" "}
-            {formatWeight(lastWorkout.totalVolume, settings.units)} volume
-          </Text>
-        </Card>
-      ) : (
-        <Card style={styles.card}>
-          <EmptyState title="No workout history yet" icon="📋" />
-        </Card>
-      )}
+      <View style={styles.section} onTouchEnd={lastWorkout ? () => router.push(`/workout/${lastWorkout.id}`) : undefined}>
+        {lastWorkout ? (
+          <>
+            <Text style={styles.workoutName}>{lastWorkout.name}</Text>
+            <Text style={styles.workoutMeta}>{formatFriendlyDate(lastWorkout.date)}</Text>
+            <Text style={styles.workoutMeta}>
+              {lastWorkout.exerciseCount} exercises · {lastWorkout.setCount} sets ·{" "}
+              {formatWeight(lastWorkout.totalVolume, settings.units)} volume
+            </Text>
+          </>
+        ) : (
+          <EmptyState title="No workout history yet" />
+        )}
+      </View>
 
       <SectionHeader
         title="Recent Personal Records"
         actionLabel="See all"
         onAction={() => router.push("/(tabs)/progress")}
       />
-      {recentPRs.length > 0 ? (
-        <Card style={styles.card}>
-          {recentPRs.map((pr, index) => (
+      <View style={styles.section}>
+        {recentPRs.length > 0 ? (
+          recentPRs.map((pr, index) => (
             <View
               key={pr.id}
               style={[styles.prRow, index < recentPRs.length - 1 && styles.prRowBorder]}
@@ -210,13 +209,11 @@ export default function HomeScreen() {
                 {formatWeight(pr.weight, settings.units)} × {pr.reps}
               </Text>
             </View>
-          ))}
-        </Card>
-      ) : (
-        <Card style={styles.card}>
-          <EmptyState title="No PRs yet" subtitle="Finish a workout to start setting records." icon="🏆" />
-        </Card>
-      )}
+          ))
+        ) : (
+          <EmptyState title="No PRs yet" subtitle="Finish a workout to start setting records." />
+        )}
+      </View>
 
       <View style={{ height: spacing.xxl }} />
     </ScrollView>
