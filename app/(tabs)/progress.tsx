@@ -16,7 +16,9 @@ import { StatTile } from "@/components/StatTile";
 import { LineChartCard } from "@/components/LineChartCard";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { EmptyState } from "@/components/EmptyState";
+import { MuscleMap, RegionDetail } from "@/components/MuscleMap";
 import { radii, spacing, typography } from "@/constants/theme";
+import { BodyRegion, GRADABLE_REGIONS, REGION_EXERCISE, STANDARDS, getStrengthTier } from "@/constants/strengthStandards";
 import { useTheme } from "@/context/ThemeContext";
 import { useSettings } from "@/context/SettingsContext";
 import {
@@ -25,6 +27,7 @@ import {
   getExerciseHistory,
   getVolumeByWorkout,
   getBodyweightEntries,
+  getLatestBodyweight,
   addBodyweightEntry,
 } from "@/db/queries";
 import { PersonalRecord, BodyweightEntry, ExerciseHistoryPoint } from "@/types";
@@ -32,6 +35,19 @@ import { formatWeight } from "@/utils/calculations";
 import { shortDate } from "@/utils/dateHelpers";
 
 const BIG_THREE = ["Bench Press", "Squat", "Deadlift"];
+
+const EMPTY_REGION_DETAILS: Record<BodyRegion, RegionDetail> = {
+  chest: { tier: null, weight: null },
+  shoulders: { tier: null, weight: null },
+  biceps: { tier: null, weight: null },
+  triceps: { tier: null, weight: null },
+  back: { tier: null, weight: null },
+  glutes: { tier: null, weight: null },
+  quads: { tier: null, weight: null },
+  hamstrings: { tier: null, weight: null },
+  calves: { tier: null, weight: null },
+  abs: { tier: null, weight: null },
+};
 
 export default function ProgressScreen() {
   const { colors } = useTheme();
@@ -134,16 +150,20 @@ export default function ProgressScreen() {
   const [exerciseHistory, setExerciseHistory] = useState<ExerciseHistoryPoint[]>([]);
   const [bwModalVisible, setBwModalVisible] = useState(false);
   const [bwInput, setBwInput] = useState("");
+  const [latestBodyweight, setLatestBodyweight] = useState<BodyweightEntry | null>(null);
+  const [regionDetails, setRegionDetails] = useState<Record<BodyRegion, RegionDetail>>(EMPTY_REGION_DETAILS);
 
   const loadData = useCallback(async () => {
-    const [lifts, volumes, bw] = await Promise.all([
+    const [lifts, volumes, bw, latestBw] = await Promise.all([
       getBestLiftPerExercise(db),
       getVolumeByWorkout(db, 12),
       getBodyweightEntries(db),
+      getLatestBodyweight(db),
     ]);
     setBestLifts(lifts);
     setVolumeSeries(volumes);
     setBodyweightEntries(bw);
+    setLatestBodyweight(latestBw);
 
     const bigThreeResults: Record<string, PersonalRecord | null> = {};
     for (const name of BIG_THREE) {
@@ -151,10 +171,27 @@ export default function ProgressScreen() {
     }
     setBigThree(bigThreeResults);
 
+    const regionResults = await Promise.all(
+      GRADABLE_REGIONS.map((region) => getBestLiftByName(db, REGION_EXERCISE[region]))
+    );
+    const nextDetails: Record<BodyRegion, RegionDetail> = { ...EMPTY_REGION_DETAILS };
+    GRADABLE_REGIONS.forEach((region, index) => {
+      const best = regionResults[index];
+      if (!best) {
+        nextDetails[region] = { tier: null, weight: null };
+        return;
+      }
+      const tier = latestBw
+        ? getStrengthTier(best.weight / latestBw.weight, STANDARDS[region][settings.sex])
+        : null;
+      nextDetails[region] = { tier, weight: best.weight };
+    });
+    setRegionDetails(nextDetails);
+
     if (!selectedExercise && lifts.length > 0) {
       setSelectedExercise(lifts[0].exerciseName ?? null);
     }
-  }, [db, selectedExercise]);
+  }, [db, selectedExercise, settings.sex]);
 
   useFocusEffect(
     useCallback(() => {
@@ -202,6 +239,19 @@ export default function ProgressScreen() {
             />
           ))}
         </View>
+      </View>
+
+      <View>
+        <SectionHeader
+          title="Muscle Map"
+          actionLabel={latestBodyweight ? undefined : "+ Log weight"}
+          onAction={latestBodyweight ? undefined : () => setBwModalVisible(true)}
+        />
+        <MuscleMap
+          details={regionDetails}
+          units={settings.units}
+          hasBodyweight={!!latestBodyweight}
+        />
       </View>
 
       <View>

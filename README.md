@@ -6,7 +6,7 @@ tracker with AI photo food recognition, in one app. Built solo with Claude, Expo
 Native, and TypeScript, backed by a single local SQLite database. There is no backend,
 no login, and no account system — everything lives on your phone. The only feature
 that ever touches the network is AI photo food logging, which is opt-in and uses your
-own Anthropic API key.
+own free Gemini API key.
 
 ## Features
 
@@ -43,10 +43,10 @@ own Anthropic API key.
   the whole thing in a tap, with adjustable per-food serving quantities.
 - **AI photo food logging** — take or pick a photo of a meal and get an editable
   per-item calorie/macro breakdown before confirming and logging it. This is the only
-  feature that calls out to the internet (Claude's vision API, called directly from
-  the device) and **requires your own Anthropic API key** — see
+  feature that calls out to the internet (Google's Gemini vision API, called directly
+  from the device) and **requires your own free Gemini API key** — see
   [Requirements](#requirements) below. Photos are resized client-side before sending
-  to keep API costs low.
+  to keep requests small.
 - **Nutrition goals** — set protein/carb/fat targets in Settings; daily calorie goal
   auto-derives from those via 4/4/9 so it can't drift out of sync.
 
@@ -80,8 +80,8 @@ dark, and tinted variants for iOS 26.
 | Charts | `react-native-chart-kit` + `react-native-svg` |
 | Animation | `react-native-reanimated` + `react-native-worklets` |
 | Photos | `expo-image-picker` + `expo-image-manipulator` |
-| Secure storage | `expo-secure-store` (Claude API key only) |
-| AI | Claude (Anthropic) vision API, called directly via `fetch()` — no SDK dependency |
+| Secure storage | `expo-secure-store` (Gemini API key only) |
+| AI | Google Gemini vision API, called directly via `fetch()` — no SDK dependency |
 
 ## Requirements
 
@@ -89,8 +89,8 @@ dark, and tinted variants for iOS 26.
 - Either the **Expo Go** app on your iPhone for quick iteration, or a Mac with Xcode
   for a standalone on-device build (see below)
 - Your computer and iPhone on the same Wi-Fi network (Expo Go path only)
-- **Optional**: an [Anthropic API key](https://console.anthropic.com) if you want to
-  use AI photo food logging. Every other feature works fully offline with no key.
+- **Optional**: a free [Gemini API key](https://aistudio.google.com/apikey) if you
+  want to use AI photo food logging. Every other feature works fully offline with no key.
 
 ## Install & run
 

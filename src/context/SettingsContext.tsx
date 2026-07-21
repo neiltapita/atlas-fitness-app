@@ -13,6 +13,7 @@ interface SettingsContextValue {
   setAccentColor: (color: string) => Promise<void>;
   setWaterUnit: (unit: WaterUnit) => Promise<void>;
   setTabOrder: (order: string[]) => Promise<void>;
+  setSex: (sex: "male" | "female") => Promise<void>;
   setNutritionGoals: (goals: {
     dailyCalorieGoal: number;
     proteinGoalG: number;
@@ -36,6 +37,7 @@ const defaultSettings: UserSettings = {
   waterGoalMl: 2500,
   waterUnit: "mL",
   tabOrder: DEFAULT_TAB_ORDER,
+  sex: "male",
 };
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
@@ -103,6 +105,14 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     [db]
   );
 
+  const setSex = useCallback(
+    async (sex: "male" | "female") => {
+      await updateSettings(db, { sex });
+      setSettings((prev) => ({ ...prev, sex }));
+    },
+    [db]
+  );
+
   const setNutritionGoals = useCallback(
     async (goals: {
       dailyCalorieGoal: number;
@@ -128,6 +138,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         setAccentColor,
         setWaterUnit,
         setTabOrder,
+        setSex,
         setNutritionGoals,
         refresh,
       }}

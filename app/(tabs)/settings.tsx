@@ -9,7 +9,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { useSettings } from "@/context/SettingsContext";
 import { WaterUnit } from "@/types";
 import { getTabConfig, normalizeTabOrder } from "@/constants/tabs";
-import { getClaudeKey, setClaudeKey } from "@/utils/apiKeyStore";
+import { getGeminiKey, setGeminiKey } from "@/utils/apiKeyStore";
 import { exportWorkoutData, pickAndImportWorkoutData } from "@/utils/exportImport";
 import { haptics } from "@/utils/haptics";
 import { mlToUnit, unitToMl } from "@/utils/water";
@@ -192,7 +192,7 @@ export default function SettingsScreen() {
     [colors]
   );
   const db = useSQLiteContext();
-  const { settings, setUnits, setTheme, setAccentColor, setWaterUnit, setTabOrder, setNutritionGoals } =
+  const { settings, setUnits, setTheme, setAccentColor, setWaterUnit, setTabOrder, setSex, setNutritionGoals } =
     useSettings();
   const tabOrder = normalizeTabOrder(settings.tabOrder);
 
@@ -209,11 +209,11 @@ export default function SettingsScreen() {
   const [hasApiKey, setHasApiKey] = useState(false);
 
   useEffect(() => {
-    getClaudeKey().then((key) => setHasApiKey(!!key));
+    getGeminiKey().then((key) => setHasApiKey(!!key));
   }, []);
 
   const commitApiKey = async () => {
-    await setClaudeKey(apiKeyInput);
+    await setGeminiKey(apiKeyInput);
     setHasApiKey(!!apiKeyInput.trim());
     setApiKeyInput("");
   };
@@ -399,6 +399,28 @@ export default function SettingsScreen() {
       </View>
 
       <View>
+        <SectionHeader title="Strength Standards" />
+        <View style={styles.section}>
+          <Text style={styles.dataDescription}>
+            Used to personalize your Muscle Map strength estimates.
+          </Text>
+          <View style={styles.tabPairRow}>
+            {(["male", "female"] as const).map((sex) => (
+              <Pressable
+                key={sex}
+                onPress={() => setSex(sex)}
+                style={[styles.tab, settings.sex === sex && styles.tabActive]}
+              >
+                <Text style={[styles.tabText, settings.sex === sex && styles.tabTextActive]}>
+                  {sex === "male" ? "Male" : "Female"}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+      </View>
+
+      <View>
         <SectionHeader title="Nutrition Goals" />
         <View style={styles.section}>
           <View style={styles.goalRow}>
@@ -459,14 +481,15 @@ export default function SettingsScreen() {
         <SectionHeader title="AI Photo Logging" />
         <View style={styles.section}>
           <Text style={styles.dataDescription}>
-            Add a Claude (Anthropic) API key to enable "Take Photo" on the Nutrition
-            tab, which estimates a meal's foods and macros from a picture. This is
-            the only feature in the app that uses the internet or a third party —
-            everything else stays fully offline.
+            Add a free Gemini (Google AI) API key to enable "Take Photo" on the
+            Nutrition tab, which estimates a meal's foods and macros from a
+            picture. This is the only feature in the app that uses the internet
+            or a third party — everything else stays fully offline. Get a free
+            key at aistudio.google.com/apikey.
           </Text>
           <TextInput
             style={styles.apiKeyInput}
-            placeholder={hasApiKey ? "Key saved — enter a new one to replace it" : "sk-ant-..."}
+            placeholder={hasApiKey ? "Key saved — enter a new one to replace it" : "AIza..."}
             placeholderTextColor={colors.textTertiary}
             value={apiKeyInput}
             onChangeText={setApiKeyInput}
@@ -498,7 +521,7 @@ export default function SettingsScreen() {
           <Text style={styles.aboutText}>
             A personal fitness platform. All data is stored locally on this device
             in SQLite. Nothing is sent anywhere unless you use AI photo logging,
-            which sends just that one photo to Claude to estimate macros.
+            which sends just that one photo to Gemini to estimate macros.
           </Text>
           <Text style={styles.aboutVersion}>Version 1.0.0</Text>
         </View>

@@ -85,6 +85,8 @@ export interface UserSettings {
   waterGoalMl: number;
   waterUnit: WaterUnit;
   tabOrder: string[];
+  /** Used only to personalize Muscle Map strength-standard lookups. */
+  sex: "male" | "female";
 }
 
 export type MealType = "breakfast" | "lunch" | "dinner" | "snack" | "drink";

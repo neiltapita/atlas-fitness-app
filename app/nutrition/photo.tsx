@@ -21,7 +21,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { createCustomFood, logFood } from "@/db/nutritionQueries";
 import { MealType } from "@/types";
 import { AIFoodItem, AIVisionError, identifyFoodPhoto } from "@/utils/aiVision";
-import { getClaudeKey } from "@/utils/apiKeyStore";
+import { getGeminiKey } from "@/utils/apiKeyStore";
 import { haptics } from "@/utils/haptics";
 import { resizeForVisionApi } from "@/utils/imageResize";
 
@@ -185,11 +185,11 @@ export default function PhotoLogScreen() {
   const [saving, setSaving] = useState(false);
 
   const analyze = async (base64: string, uri: string) => {
-    const apiKey = await getClaudeKey();
+    const apiKey = await getGeminiKey();
     if (!apiKey) {
       Alert.alert(
-        "No Claude API key",
-        "Add a Claude API key in Settings → AI Photo Logging to use this feature."
+        "No Gemini API key",
+        "Add a Gemini API key in Settings → AI Photo Logging to use this feature."
       );
       return;
     }
@@ -290,7 +290,7 @@ export default function PhotoLogScreen() {
         {!imageUri ? (
           <>
             <Text style={styles.intro}>
-              Take or choose a photo of your meal — Claude will estimate the foods and macros for you to review
+              Take or choose a photo of your meal — Gemini will estimate the foods and macros for you to review
               before anything is saved.
             </Text>
             <View style={styles.startButtons}>

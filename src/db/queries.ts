@@ -805,6 +805,7 @@ export async function getSettings(db: SQLiteDatabase): Promise<UserSettings> {
     water_goal_ml: number;
     water_unit: string;
     tab_order: string | null;
+    sex: string;
   }>(`SELECT * FROM usersettings WHERE id = 1;`);
   if (!row) {
     return {
@@ -820,6 +821,7 @@ export async function getSettings(db: SQLiteDatabase): Promise<UserSettings> {
       waterGoalMl: 2500,
       waterUnit: "mL",
       tabOrder: normalizeTabOrder(null),
+      sex: "male",
     };
   }
   let parsedTabOrder: string[] | null = null;
@@ -843,6 +845,7 @@ export async function getSettings(db: SQLiteDatabase): Promise<UserSettings> {
     waterGoalMl: row.water_goal_ml ?? 2500,
     waterUnit: (row.water_unit as UserSettings["waterUnit"]) ?? "mL",
     tabOrder: normalizeTabOrder(parsedTabOrder),
+    sex: (row.sex as UserSettings["sex"]) ?? "male",
   };
 }
 
@@ -862,6 +865,7 @@ export async function updateSettings(
       | "waterGoalMl"
       | "waterUnit"
       | "tabOrder"
+      | "sex"
     >
   >
 ): Promise<void> {
@@ -910,6 +914,10 @@ export async function updateSettings(
   if (fields.waterGoalMl !== undefined) {
     clauses.push("water_goal_ml = ?");
     values.push(fields.waterGoalMl);
+  }
+  if (fields.sex !== undefined) {
+    clauses.push("sex = ?");
+    values.push(fields.sex);
   }
   if (clauses.length === 0) return;
   await db.runAsync(`UPDATE usersettings SET ${clauses.join(", ")} WHERE id = 1;`, values);

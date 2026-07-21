@@ -5,93 +5,95 @@ export interface AIFoodItem extends Macros {
   quantityDescription: string;
 }
 
-const SYSTEM_PROMPT = `You are a nutrition estimation assistant. You will be shown a photo of a meal.
+const PROMPT = `You are a nutrition estimation assistant. You will be shown a photo of a meal.
 Identify each distinguishable food component (e.g. a Chipotle bowl might be "White Rice", "Black Beans", "Grilled Chicken", "Cheese", "Guacamole"). If the dish truly can't be broken down, return it as a single item.
 For each item, estimate a realistic serving quantity and its macros as consumed.
-Respond with ONLY a JSON object and nothing else — no markdown code fences, no prose before or after — of this exact shape:
-{
-  "items": [
-    {
-      "name": string,
-      "quantityDescription": string,  // e.g. "1 cup (150g)"
-      "calories": number,
-      "protein": number,   // grams
-      "carbs": number,     // grams
-      "fat": number,       // grams
-      "fiber": number,     // grams
-      "sugar": number,     // grams
-      "sodium": number     // milligrams
-    }
-  ]
-}
 These are estimates from a photo, not lab measurements — use your best judgment and common nutrition data for similar foods.`;
+
+const RESPONSE_SCHEMA = {
+  type: "OBJECT",
+  properties: {
+    items: {
+      type: "ARRAY",
+      items: {
+        type: "OBJECT",
+        properties: {
+          name: { type: "STRING" },
+          quantityDescription: { type: "STRING", description: 'e.g. "1 cup (150g)"' },
+          calories: { type: "NUMBER" },
+          protein: { type: "NUMBER", description: "grams" },
+          carbs: { type: "NUMBER", description: "grams" },
+          fat: { type: "NUMBER", description: "grams" },
+          fiber: { type: "NUMBER", description: "grams" },
+          sugar: { type: "NUMBER", description: "grams" },
+          sodium: { type: "NUMBER", description: "milligrams" },
+        },
+        required: ["name", "quantityDescription", "calories", "protein", "carbs", "fat", "fiber", "sugar", "sodium"],
+      },
+    },
+  },
+  required: ["items"],
+};
+
+const MODEL = "gemini-3.5-flash";
 
 export class AIVisionError extends Error {}
 
-function extractJson(text: string): string {
-  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  return fenced ? fenced[1].trim() : text.trim();
-}
-
 /**
- * Sends a meal photo to Claude's vision API and returns estimated,
+ * Sends a meal photo to Gemini's vision API and returns estimated,
  * per-component macro breakdowns. Never persists anything itself — callers
  * must show the results for user confirmation before saving.
  */
 export async function identifyFoodPhoto(base64Image: string, apiKey: string): Promise<AIFoodItem[]> {
   if (!apiKey) {
-    throw new AIVisionError("No Claude API key set. Add one in Settings to use photo logging.");
+    throw new AIVisionError("No Gemini API key set. Add one in Settings to use photo logging.");
   }
 
   let response: Response;
   try {
-    response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-5",
-        max_tokens: 1500,
-        system: SYSTEM_PROMPT,
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "image",
-                source: { type: "base64", media_type: "image/jpeg", data: base64Image },
-              },
-              { type: "text", text: "Identify the foods in this photo and estimate their macros." },
-            ],
+    response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: `${PROMPT}\n\nIdentify the foods in this photo and estimate their macros.` },
+                { inline_data: { mime_type: "image/jpeg", data: base64Image } },
+              ],
+            },
+          ],
+          generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: RESPONSE_SCHEMA,
           },
-        ],
-      }),
-    });
+        }),
+      }
+    );
   } catch {
-    throw new AIVisionError("Couldn't reach Claude. Check your internet connection and try again.");
+    throw new AIVisionError("Couldn't reach Gemini. Check your internet connection and try again.");
   }
 
   if (!response.ok) {
-    if (response.status === 401) {
-      throw new AIVisionError("Claude rejected the API key. Check it in Settings.");
+    if (response.status === 400 || response.status === 401 || response.status === 403) {
+      throw new AIVisionError("Gemini rejected the API key. Check it in Settings.");
     }
-    throw new AIVisionError(`Claude request failed (status ${response.status}).`);
+    throw new AIVisionError(`Gemini request failed (status ${response.status}).`);
   }
 
   const json = await response.json();
-  const content: string | undefined = json?.content?.[0]?.text;
+  const content: string | undefined = json?.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!content) {
-    throw new AIVisionError("Claude returned an empty response.");
+    throw new AIVisionError("Gemini returned an empty response.");
   }
 
   let parsed: { items?: unknown[] };
   try {
-    parsed = JSON.parse(extractJson(content));
+    parsed = JSON.parse(content);
   } catch {
-    throw new AIVisionError("Couldn't parse Claude's response.");
+    throw new AIVisionError("Couldn't parse Gemini's response.");
   }
 
   if (!Array.isArray(parsed.items) || parsed.items.length === 0) {

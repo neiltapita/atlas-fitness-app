@@ -23,7 +23,7 @@ The explicit long-term ambition (stated by the user when they requested the nutr
 
 **Target users:** Personal use by the developer/user themselves (this is explicitly a personal app, not built for App Store distribution — no Apple Developer Program account, uses free personal Apple ID signing which expires every 7 days). Portfolio/demonstration value matters — the user has said quality bar should stay high since this differentiates their portfolio.
 
-**Overall architecture:** Fully offline-first, single-user, local-only SQLite database. No backend server, no auth/login, no user accounts. The **only** feature that talks to the internet is AI photo food logging, which calls Claude's API directly from the client with a user-supplied API key stored in `expo-secure-store`. Everything else — all workout data, nutrition data, templates, settings — lives in one local SQLite file (`gymtracker.db`) on the device.
+**Overall architecture:** Fully offline-first, single-user, local-only SQLite database. No backend server, no auth/login, no user accounts. The **only** feature that talks to the internet is AI photo food logging, which calls Google's Gemini API directly from the client with a user-supplied, free-tier API key stored in `expo-secure-store` (originally built against Claude/Anthropic, switched to Gemini in a later session so users get a free provider instead of needing a paid Anthropic key). Everything else — all workout data, nutrition data, templates, settings — lives in one local SQLite file (`gymtracker.db`) on the device.
 
 ---
 
@@ -42,9 +42,9 @@ The explicit long-term ambition (stated by the user when they requested the nutr
 | Animations | `react-native-reanimated` + `react-native-worklets` | `~4.1.1` / `0.5.1` |
 | Image picking | `expo-image-picker` | `~17.0.11` |
 | Image resizing | `expo-image-manipulator` | `~14.0.8` |
-| Secure storage | `expo-secure-store` (used only for the Claude API key) | `~15.0.8` |
+| Secure storage | `expo-secure-store` (used only for the Gemini API key) | `~15.0.8` |
 | Icons | `@expo/vector-icons` (Ionicons) | bundled with Expo |
-| AI integration | **Claude (Anthropic) vision API**, called directly via `fetch()` to `https://api.anthropic.com/v1/messages` — no SDK dependency added, raw HTTP with `x-api-key` + `anthropic-version: 2023-06-01` headers. Model used: `claude-sonnet-5`. | n/a (raw fetch) |
+| AI integration | **Google Gemini vision API** (`gemini-3.5-flash`, free tier), called directly via `fetch()` to `https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent` — no SDK dependency, raw HTTP with the API key as a `?key=` query param, using `generationConfig.responseSchema` for enforced structured JSON output. **Switched from Claude/Anthropic to Gemini in a later session** (the "Model used: claude-sonnet-5" line below in earlier history reflects the original build, not the current provider). | n/a (raw fetch) |
 | Build tooling | `npx expo run:ios --device` (Debug, needs Metro) or `npx expo run:ios --device --configuration Release` (standalone, no Mac needed after install) | — |
 
 **Important architecture decision:** OpenAI was originally scaffolded for the AI vision feature, then explicitly switched to **Claude/Anthropic** per user request mid-session. `src/utils/aiVision.ts` and `src/utils/apiKeyStore.ts` are Claude-specific (function names `getClaudeKey`/`setClaudeKey`, not generic).

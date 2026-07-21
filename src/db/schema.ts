@@ -183,4 +183,5 @@ export const MIGRATIONS_SQL: string[] = [
   // the new gold brand color. Anyone who picked a different accent already
   // keeps their choice.
   `UPDATE usersettings SET accent_color = '#D4AF37' WHERE id = 1 AND accent_color = '#FF6B35';`,
+  `ALTER TABLE usersettings ADD COLUMN sex TEXT NOT NULL DEFAULT 'male';`,
 ];
